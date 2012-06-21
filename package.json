@@ -33,7 +33,7 @@
 , "devDependencies" : { "jasmine-node" : "1.0.x"
                       , "coffee-script" : "1.3.x"
                       }
-, "main"            : "lib/fibrous"
+, "main"            : "lib/attachments"
 , "engine" : { "node" : ">=0.6"
              }
 , "scripts" : { "pretest" : "coffee -cl -o lib src"
