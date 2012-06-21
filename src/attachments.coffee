@@ -8,19 +8,19 @@ extensions =
   "image/gif": ".gif"
 
 module.exports = attachments = (config) ->
-  console.log "Attachments initialized with config:", config
 
   Attachment: class Attachments
 
-    constructor: (@file) ->
+    constructor: (@file, @options={}) ->
+      @id = @options.id or new Date().getTime()
+      @name = @options.name or @file.name.replace /(\..*?)$/, ''
+      @extension = extensions[@file.type]
 
     conversions: () ->
-      name = @file.name.replace /(\..*?)$/, ''
-      id = new Date().getTime()
       conversions = for style, conversion of config.styles
         do (style, conversion) =>
-          path = "#{config.storage.dir.path}/#{config.prefix}/#{id}/#{style}"
-          destFile = "#{path}/#{name}#{extensions[@file.type]}"
+          dir = @dir style
+          destFile = @path style
           args = [@file.path, '-resize', conversion]
           # See http://www.imagemagick.org/Usage/resize/#fill
           if groups = conversion.match /^(.*)\^$/
@@ -29,7 +29,7 @@ module.exports = attachments = (config) ->
           {
             args: args
             convert: (cb) ->
-              mkdirp path, (err) ->
+              mkdirp dir, (err) ->
                 return cb(err) if err?
                 imagemagick.convert args, cb
           }
@@ -38,3 +38,9 @@ module.exports = attachments = (config) ->
       conversions = @conversions()
       console.log "Converting:", (c.args for c in conversions)
       async.series (c.convert for c in conversions), cb
+
+    dir: (style) ->
+      "#{config.storage.dir.path}/#{config.prefix}/#{@id}/#{style}"
+
+    path: (style) ->
+      "#{@dir(style)}/#{@name}#{@extension}"
