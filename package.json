@@ -37,6 +37,6 @@
 , "engine" : { "node" : ">=0.6"
              }
 , "scripts" : { "pretest" : "coffee -cl -o lib src"
-              , "test" : "jasmine-node --coffee --junitreport spec"
+              , "test" : "rm -rf ./tmp; jasmine-node --coffee --junitreport spec"
               }
 }

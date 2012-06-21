@@ -27,6 +27,8 @@ module.exports = attachments = (config) ->
             args = args.concat ['-gravity', 'center', '-extent', groups[1]]
           args.push destFile
           {
+            style: style
+            path: destFile
             args: args
             convert: (cb) ->
               mkdirp dir, (err) ->
@@ -36,7 +38,6 @@ module.exports = attachments = (config) ->
 
     convert: (cb) ->
       conversions = @conversions()
-      console.log "Converting:", (c.args for c in conversions)
       async.series (c.convert for c in conversions), cb
 
     dir: (style) ->
