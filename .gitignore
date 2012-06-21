@@ -1,0 +1,17 @@
+dump
+reports
+.jhw-cache
+npm-debug.log
+.idea
+builtAssets
+config/settings.local.coffee
+.DS_Store
+log/*
+client/js/build/*
+tmp/*
+!.gitkeep
+node_modules
+ruby_gems
+mongodump-*
+tags
+*.tmproj
