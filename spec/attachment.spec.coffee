@@ -33,24 +33,19 @@ describe "attachments", ->
       it "defines conversions", ->
         conversions = processor.conversions()
         expect(conversions.length).toEqual 3
-        expect(conversions[0].args).toEqual [ './spec/clark_summit.jpg', '-resize', '100x100^', '-gravity', 'center', '-extent', '100x100', './tmp/photos/123/thumb/clark_summit.jpg' ]
+        expect(conversions[0].args[0...-1]).toEqual [ './spec/clark_summit.jpg', '-resize', '100x100^', '-gravity', 'center', '-extent', '100x100']
 
       it "creates all sizes", (done) ->
+        images = {}
+        processor.on 'convert', (result) ->
+          images[result.style] = result.file
+        processor.on 'done', ->
+          expect(images['thumb']).toBeTruthy()
+          expect(images['croppable']).toBeTruthy()
+          expect(images['big']).toBeTruthy()
+          done()
         processor.convert (err) ->
           expect(err).toBeFalsy()
-          expect(fs.readdirSync(processor.dir('thumb')).length).toEqual 1
-          expect(fs.readdirSync(processor.dir('croppable')).length).toEqual 1
-          expect(fs.readdirSync(processor.dir('big')).length).toEqual 1
-          done()
-
-      it "dispatches events", (done) ->
-        count = 0
-        processor.on 'convert', (result) ->
-          count++
-        processor.on 'done', ->
-          expect(count).toEqual 3
-          done()
-        processor.convert()
 
   describe "when configured for s3 storage", ->
 

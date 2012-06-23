@@ -1,29 +1,41 @@
 imagemagick = require 'imagemagick'
-mkdirp = require 'mkdirp'
 async = require 'async'
 EventEmitter = require('events').EventEmitter
+assert = require 'assert'
+path = require 'path'
 
 extensions =
   "image/jpeg": ".jpg"
   "image/png": ".png"
   "image/gif": ".gif"
 
+tmpFile = (tmpDir) ->
+  name = ""
+  name += Math.floor(Math.random() * 16).toString(16) for i in [0...32]
+  path.join tmpDir, name
+
 module.exports = attachments = (config) ->
+  tmpDir = config.tmpDir or process.env.TMPDIR
+  assert.ok(path.existsSync(tmpDir), "#{tmpDir} does not exist")
 
-  Processor: class Processor extends EventEmitter
+  Attachment: class Attachment
 
-    constructor: (@file, @options={}) ->
-      @styles = @options.styles or {}
+    constructor: (@id, @options={}) ->
       @id = @options.id or new Date().getTime()
       @prefix = @options.prefix or "default"
       @name = @options.name or @file.name.replace /(\..*?)$/, ''
       @extension = extensions[@file.type]
 
+
+  Processor: class Processor extends EventEmitter
+
+    constructor: (@file, @options={}) ->
+
     conversions: () ->
-      conversions = for style, conversion of @styles
+      destFileBase = tmpFile(tmpDir)
+      conversions = for style, conversion of @options.styles
         do (style, conversion) =>
-          dir = @dir style
-          destFile = @path style
+          destFile = "#{destFileBase}-#{style}"
           args = [@file.path, '-resize', conversion]
           # See http://www.imagemagick.org/Usage/resize/#fill
           if groups = conversion.match /^(.*)\^$/
@@ -35,12 +47,10 @@ module.exports = attachments = (config) ->
             path: destFile
             args: args
             convert: (cb) ->
-              mkdirp dir, (err) ->
-                return cb(err) if err?
-                imagemagick.convert args, (err) ->
-                  return cb("Imagemagick #{err}") if err?
-                  processor.emit('convert', style: style, file: destFile)
-                  cb(null)
+              imagemagick.convert args, (err) ->
+                return cb("Imagemagick #{err}") if err?
+                processor.emit('convert', style: style, file: destFile)
+                cb(null)
           }
 
     convert: (cb) ->
@@ -49,10 +59,4 @@ module.exports = attachments = (config) ->
         @emit('error', err) if err?
         @emit('done')
         cb(err) if cb?
-
-    dir: (style) ->
-      "#{config.storage.dir.path}/#{@prefix}/#{@id}/#{style}"
-
-    path: (style) ->
-      "#{@dir(style)}/#{@name}#{@extension}"
 
