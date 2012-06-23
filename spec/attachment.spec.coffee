@@ -73,3 +73,12 @@ describe "attachments", ->
             secret_access_key: "eCmld0CxnyPiT8Ag0yqFwkjSw2H1qFvx2FhIqWN8"
             bucket: "mongoose_attachments_test"
       attachments = require('../lib/attachments')(config)
+
+    describe "Attachment", ->
+      attachment = null
+
+      beforeEach ->
+        attachment = new attachments.Attachment null, file: file, prefix: "photos", styles: styles
+
+      it "writes to s3", (done) ->
+        attachment.save done
