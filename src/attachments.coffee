@@ -1,6 +1,7 @@
 imagemagick = require 'imagemagick'
 mkdirp = require 'mkdirp'
 async = require 'async'
+EventEmitter = require('events').EventEmitter
 
 extensions =
   "image/jpeg": ".jpg"
@@ -9,7 +10,7 @@ extensions =
 
 module.exports = attachments = (config) ->
 
-  Processor: class Processor
+  Processor: class Processor extends EventEmitter
 
     constructor: (@file, @options={}) ->
       @styles = @options.styles or {}
@@ -28,6 +29,7 @@ module.exports = attachments = (config) ->
           if groups = conversion.match /^(.*)\^$/
             args = args.concat ['-gravity', 'center', '-extent', groups[1]]
           args.push destFile
+          processor = @
           {
             style: style
             path: destFile
@@ -35,12 +37,17 @@ module.exports = attachments = (config) ->
             convert: (cb) ->
               mkdirp dir, (err) ->
                 return cb(err) if err?
-                imagemagick.convert args, cb
+                imagemagick.convert args, (err) ->
+                  return cb(err) if err?
+                  processor.emit('convert', style: style, file: destFile)
+                  cb(null)
           }
 
     convert: (cb) ->
       conversions = @conversions()
-      async.parallel (c.convert for c in conversions), cb
+      async.parallel (c.convert for c in conversions), (err) =>
+        @emit('error', err) if err?
+        cb(err) if cb?
 
     dir: (style) ->
       "#{config.storage.dir.path}/#{@prefix}/#{@id}/#{style}"
