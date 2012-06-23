@@ -1,17 +1,15 @@
 fs = require 'fs'
 
-config =
-  prefix: 'photos'
-  storage:
-    dir:
-      path: "./tmp"
-
 describe "attachments", ->
   attachments = null
 
   describe "when configured for dir storage", ->
 
     beforeEach ->
+      config =
+        storage:
+          dir:
+            path: "./tmp"
       attachments = require('../lib/attachments')(config)
 
     it "initializes", ->
@@ -25,7 +23,7 @@ describe "attachments", ->
         type: 'image/jpeg'
 
       beforeEach ->
-        processor = new attachments.Processor file, id: '123', styles:
+        processor = new attachments.Processor file, id: '123', prefix: "photos", styles:
           thumb: '100x100^'
           croppable: '600x600>'
           big: '1000x1000>'
@@ -43,4 +41,14 @@ describe "attachments", ->
           expect(fs.readdirSync(processor.dir('big')).length).toEqual 1
           done()
 
+  describe "when configured for s3 storage", ->
+
+    beforeEach ->
+      config =
+        storage:
+          s3:
+            access_key_id: ""
+            secret_access_key: ""
+            bucket: "mongoose_attachments_test"
+      attachments = require('../lib/attachments')(config)
 

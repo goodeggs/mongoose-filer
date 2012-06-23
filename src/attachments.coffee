@@ -14,6 +14,7 @@ module.exports = attachments = (config) ->
     constructor: (@file, @options={}) ->
       @styles = @options.styles or {}
       @id = @options.id or new Date().getTime()
+      @prefix = @options.prefix or "default"
       @name = @options.name or @file.name.replace /(\..*?)$/, ''
       @extension = extensions[@file.type]
 
@@ -42,7 +43,7 @@ module.exports = attachments = (config) ->
       async.parallel (c.convert for c in conversions), cb
 
     dir: (style) ->
-      "#{config.storage.dir.path}/#{config.prefix}/#{@id}/#{style}"
+      "#{config.storage.dir.path}/#{@prefix}/#{@id}/#{style}"
 
     path: (style) ->
       "#{@dir(style)}/#{@name}#{@extension}"
