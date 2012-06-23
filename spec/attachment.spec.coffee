@@ -1,4 +1,5 @@
 fs = require 'fs'
+path = require 'path'
 
 describe "attachments", ->
   attachments = null
@@ -40,9 +41,9 @@ describe "attachments", ->
         processor.on 'convert', (result) ->
           images[result.style] = result.file
         processor.on 'done', ->
-          expect(images['thumb']).toBeTruthy()
-          expect(images['croppable']).toBeTruthy()
-          expect(images['big']).toBeTruthy()
+          expect(path.existsSync(images['thumb'])).toBeTruthy()
+          expect(path.existsSync(images['croppable'])).toBeTruthy()
+          expect(path.existsSync(images['big'])).toBeTruthy()
           done()
         processor.convert (err) ->
           expect(err).toBeFalsy()
