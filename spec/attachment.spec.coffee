@@ -3,6 +3,14 @@ path = require 'path'
 
 describe "attachments", ->
   attachments = null
+  file =
+    name: "clark_summit.jpg"
+    path: "./spec/clark_summit.jpg"
+    type: 'image/jpeg'
+  styles =
+    thumb: '100x100^'
+    croppable: '600x600>'
+    big: '1000x1000>'
 
   describe "when configured for dir storage", ->
 
@@ -18,16 +26,9 @@ describe "attachments", ->
 
     describe "Processor", ->
       processor = null
-      file =
-        name: "clark_summit.jpg"
-        path: "./spec/clark_summit.jpg"
-        type: 'image/jpeg'
 
       beforeEach ->
-        processor = new attachments.Processor file, id: '123', prefix: "photos", styles:
-          thumb: '100x100^'
-          croppable: '600x600>'
-          big: '1000x1000>'
+        processor = new attachments.Processor file, styles: styles
         processor.on 'error', (err) ->
           jasmine.getEnv().currentSpec.fail(err)
 
@@ -48,6 +49,20 @@ describe "attachments", ->
         processor.convert (err) ->
           expect(err).toBeFalsy()
 
+    describe "Attachment", ->
+      attachment = null
+
+      beforeEach ->
+        attachment = new attachments.Attachment '123', file: file, prefix: "photos", styles: styles
+
+      it "writes to filesystem paths", (done) ->
+        attachment.save (err) ->
+          expect(err).toBeFalsy()
+          expect(path.existsSync(attachment.path 'thumb')).toBeTruthy()
+          expect(path.existsSync(attachment.path 'croppable')).toBeTruthy()
+          expect(path.existsSync(attachment.path 'big')).toBeTruthy()
+          done()
+
   describe "when configured for s3 storage", ->
 
     beforeEach ->
@@ -58,30 +73,3 @@ describe "attachments", ->
             secret_access_key: "eCmld0CxnyPiT8Ag0yqFwkjSw2H1qFvx2FhIqWN8"
             bucket: "mongoose_attachments_test"
       attachments = require('../lib/attachments')(config)
-
-    describe "Processor", ->
-      processor = null
-      file =
-        name: "clark_summit.jpg"
-        path: "./spec/clark_summit.jpg"
-        type: 'image/jpeg'
-
-      beforeEach ->
-        processor = new attachments.Processor file, id: '123', prefix: "photos", styles:
-          thumb: '100x100^'
-          croppable: '600x600>'
-          big: '1000x1000>'
-
-#      it "defines conversions", ->
-#        conversions = processor.conversions()
-#        expect(conversions.length).toEqual 3
-#        expect(conversions[0].args).toEqual [ './spec/clark_summit.jpg', '-resize', '100x100^', '-gravity', 'center', '-extent', '100x100', './tmp/photos/123/thumb/clark_summit.jpg' ]
-#
-#      it "creates all sizes", (done) ->
-#        processor.convert (err) ->
-#          expect(err).toBeFalsy()
-#          expect(fs.readdirSync(processor.dir('thumb')).length).toEqual 1
-#          expect(fs.readdirSync(processor.dir('croppable')).length).toEqual 1
-#          expect(fs.readdirSync(processor.dir('big')).length).toEqual 1
-#          done()
-

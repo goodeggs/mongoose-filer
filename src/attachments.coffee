@@ -18,14 +18,30 @@ module.exports = attachments = (config) ->
   tmpDir = config.tmpDir or process.env.TMPDIR
   assert.ok(path.existsSync(tmpDir), "#{tmpDir} does not exist")
 
+  storage = require('./storage/filesystem')(config.storage.dir)
+
   Attachment: class Attachment
 
     constructor: (@id, @options={}) ->
-      @id = @options.id or new Date().getTime()
+      @id ?= new Date().getTime()
       @prefix = @options.prefix or "default"
-      @name = @options.name or @file.name.replace /(\..*?)$/, ''
-      @extension = extensions[@file.type]
+      @store = new storage.Store(@)
+      @file(@options.file) if @options.file?
 
+    file: (file) ->
+      @file = file
+      @extension = extensions[@file.type]
+      @name = @options.name or @file.name.replace /(\..*?)$/, ''
+
+    save: (cb) ->
+      processor = new Processor(@file, styles: @options.styles)
+      processor.on 'convert', (result) => @store.pendingWrites.push result
+      processor.on 'done', => @store.flushWrites cb
+      processor.on 'error', cb
+      processor.convert()
+
+    path: (style) ->
+      @store.path(style)
 
   Processor: class Processor extends EventEmitter
 
