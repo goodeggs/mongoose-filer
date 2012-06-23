@@ -27,6 +27,8 @@ describe "attachments", ->
           thumb: '100x100^'
           croppable: '600x600>'
           big: '1000x1000>'
+        processor.on 'error', (err) ->
+          jasmine.getEnv().currentSpec.fail(err)
 
       it "defines conversions", ->
         conversions = processor.conversions()
@@ -41,13 +43,14 @@ describe "attachments", ->
           expect(fs.readdirSync(processor.dir('big')).length).toEqual 1
           done()
 
-      it "dispatches convert events", (done) ->
+      it "dispatches events", (done) ->
         count = 0
         processor.on 'convert', (result) ->
           count++
-        processor.convert (err) ->
+        processor.on 'done', ->
           expect(count).toEqual 3
           done()
+        processor.convert()
 
   describe "when configured for s3 storage", ->
 

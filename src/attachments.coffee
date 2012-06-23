@@ -38,7 +38,7 @@ module.exports = attachments = (config) ->
               mkdirp dir, (err) ->
                 return cb(err) if err?
                 imagemagick.convert args, (err) ->
-                  return cb(err) if err?
+                  return cb("Imagemagick #{err}") if err?
                   processor.emit('convert', style: style, file: destFile)
                   cb(null)
           }
@@ -47,6 +47,7 @@ module.exports = attachments = (config) ->
       conversions = @conversions()
       async.parallel (c.convert for c in conversions), (err) =>
         @emit('error', err) if err?
+        @emit('done')
         cb(err) if cb?
 
     dir: (style) ->
