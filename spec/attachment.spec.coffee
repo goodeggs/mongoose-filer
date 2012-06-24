@@ -1,5 +1,8 @@
+require './spec_helper'
+
 fs = require 'fs'
 path = require 'path'
+KnoxClient = require 'knox'
 
 describe "attachments", ->
   attachments = null
@@ -76,9 +79,17 @@ describe "attachments", ->
 
     describe "Attachment", ->
       attachment = null
+      putFile = null
 
       beforeEach ->
         attachment = new attachments.Attachment null, file: file, prefix: "photos", styles: styles
 
-      it "writes to s3", (done) ->
-        attachment.save done
+      describe "writing", ->
+        beforeEach ->
+          putFile = spyOn(KnoxClient.prototype, 'putFile').andCallback()
+
+        it "writes to s3", (done) ->
+          attachment.save (err) ->
+            expect(putFile).toHaveBeenCalled()
+            expect(putFile.mostRecentCall.args[2]['Content-Type']).toEqual "image/jpeg"
+            done()
