@@ -1,45 +1,43 @@
 async = require 'async'
 assert = require 'assert'
 
-module.exports = storage = (config) ->
+exports = module.exports = (config) ->
 
   adapter = Object.keys(config)[0]
   assert.ok(adapter, "Storage is not configured")
 
-  class Store
+  # Mix in adapter
+  require("./#{adapter}")(exports.Store, config[adapter])
 
-    constructor: (@attachment) ->
-      @pendingWrites = []
+  Store: exports.Store
 
-    path: (style) ->
-      "/#{@attachment.prefix}/#{@attachment.id}/#{style}/#{@attachment.name}#{@attachment.extension}"
+exports.Store = class Store
 
-    flushWrites: (cb) ->
-      store = @
-      writes = for { style, file } in store.pendingWrites
-        do (style, file) =>
-          (done) -> store.write style, file, done
+  constructor: (@attachment) ->
+    @pendingWrites = []
 
-      async.parallel writes, (err) ->
-        return cb(err) if err?
-        store.pendingWrites = []
-        cb()
+  path: (style) ->
+    "/#{@attachment.prefix}/#{@attachment.id}/#{style}/#{@attachment.name}#{@attachment.extension}"
 
-    flushDeletes: (cb) ->
+  flushWrites: (cb) ->
+    store = @
+    writes = for { style, file } in store.pendingWrites
+      do (style, file) =>
+        (done) -> store.write style, file, done
+
+    async.parallel writes, (err) ->
+      return cb(err) if err?
+      store.pendingWrites = []
       cb()
 
-    write: (style, file, cb) ->
-      throw "Storage adapter not loaded"
+  flushDeletes: (cb) ->
+    cb()
 
-    delete: (style, cb) ->
-      throw "Storage adapter not loaded"
+  write: (style, file, cb) ->
+    throw "Storage adapter not loaded"
 
-    copyToLocalFile: (style, file, cb) ->
-      throw "Storage adapter not loaded"
+  delete: (style, cb) ->
+    throw "Storage adapter not loaded"
 
-  # Mix in adapter
-  require("./#{adapter}")(Store, config[adapter])
-
-  return {
-    Store: Store
-  }
+  copyToLocalFile: (style, file, cb) ->
+    throw "Storage adapter not loaded"
