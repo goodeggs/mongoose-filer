@@ -1,4 +1,5 @@
 path = require 'path'
+require './before_after_all_helper'
 
 jasmine.Spy::andCallback = (err, result) ->
   @andCallFake (args...) ->

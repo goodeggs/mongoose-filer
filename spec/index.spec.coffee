@@ -1,4 +1,4 @@
-require './spec_helper'
+require './support/spec_helper'
 
 fs = require 'fs'
 path = require 'path'
