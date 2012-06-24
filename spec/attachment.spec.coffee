@@ -22,7 +22,7 @@ describe "attachments", ->
         storage:
           filesystem:
             dir: "./tmp"
-      attachments = require('../lib/attachments')(config)
+      attachments = require('..')(config)
 
     it "initializes", ->
       expect(attachments.Processor).toBeTruthy()
