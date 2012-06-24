@@ -4,3 +4,4 @@ module.exports = (config) ->
 
   Processor: (require('./processor')(config)).Processor
   Attachment: require('./attachment')
+  hasAttachment: require('./plugin')

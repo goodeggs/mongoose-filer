@@ -44,6 +44,6 @@ exports = module.exports = (schema, options) ->
         contentType: value.type
         file: value.path
 
-exports.Attachment = mongoose.model 'Attachment', Attachments
+exports.MongooseAttachment = mongoose.model 'Attachment', Attachments
 
 

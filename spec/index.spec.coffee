@@ -72,8 +72,8 @@ describe "attachments", ->
       config =
         storage:
           s3:
-            access_key_id: "AKIAJFMXVXFX6LSJIV3A"
-            secret_access_key: "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"
+            access_key_id: "ACCESS_KEY_ID"
+            secret_access_key: "SECRET_ACCESS_KEY"
             bucket: "mongoose_attachments_test"
       attachments = require('../lib/attachments')(config)
 

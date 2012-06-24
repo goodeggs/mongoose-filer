@@ -1,6 +1,15 @@
 require './support/spec_helper'
 mongoose = require 'mongoose'
-hasAttachment = require '../lib/mongoose-attachments/plugin'
+KnoxClient = require 'knox'
+
+config =
+  storage:
+    s3:
+      access_key_id: "ACCESS_KEY_ID"
+      secret_access_key: "SECRET_ACCESS_KEY"
+      bucket: "mongoose_attachments_test"
+
+{ hasAttachment } = require('..')(config)
 
 beforeAll ->
   mongoose.connect 'mongodb://localhost/mongoose-attachments_test'
@@ -13,10 +22,13 @@ describe "Mongoose plugin", ->
     path: "./spec/clark_summit.jpg"
     type: 'image/jpeg'
 
+  beforeEach ->
+    spyOn(KnoxClient.prototype, 'putFile').andCallback() # Stub knox
+
   describe "Attachment model", ->
 
     it "has non-persistant file path", ->
-      attachment = new hasAttachment.Attachment
+      attachment = new hasAttachment.MongooseAttachment
         name: 'avatar'
         fileName: file.name
         contentType: file.type
