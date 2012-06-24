@@ -20,8 +20,8 @@ describe "attachments", ->
     beforeEach ->
       config =
         storage:
-          dir:
-            path: "./tmp"
+          filesystem:
+            dir: "./tmp"
       attachments = require('../lib/attachments')(config)
 
     it "initializes", ->
@@ -45,9 +45,9 @@ describe "attachments", ->
         processor.on 'convert', (result) ->
           images[result.style] = result.file
         processor.on 'done', ->
-          expect(path.existsSync(images['thumb'])).toBeTruthy()
-          expect(path.existsSync(images['croppable'])).toBeTruthy()
-          expect(path.existsSync(images['big'])).toBeTruthy()
+          expect(images['thumb']).exists()
+          expect(images['croppable']).exists()
+          expect(images['big']).exists()
           done()
         processor.convert (err) ->
           expect(err).toBeFalsy()
@@ -61,9 +61,9 @@ describe "attachments", ->
       it "writes to filesystem paths", (done) ->
         attachment.save (err) ->
           expect(err).toBeFalsy()
-          expect(path.existsSync(attachment.path 'thumb')).toBeTruthy()
-          expect(path.existsSync(attachment.path 'croppable')).toBeTruthy()
-          expect(path.existsSync(attachment.path 'big')).toBeTruthy()
+          expect(attachment.store.filePath 'thumb').exists()
+          expect(attachment.store.filePath 'croppable').exists()
+          expect(attachment.store.filePath 'big').exists()
           done()
 
   describe "when configured for s3 storage", ->

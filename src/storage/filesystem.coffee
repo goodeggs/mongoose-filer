@@ -1,33 +1,13 @@
 fs = require 'fs-extra'
-async = require 'async'
+path = require 'path'
 
-module.exports = storage = (config) ->
+module.exports = filesystem = (Store, config) ->
 
-  Store: class Store
-    
-    constructor: (@attachment) ->
-      @pendingWrites = []
+  Store.prototype.write = (style, file, cb) ->
+    destFile = @filePath style
+    fs.mkdir path.dirname(destFile), (err) ->
+      return cb(err) if err?
+      fs.copy file, destFile, cb
 
-    dir: (style) ->
-      "#{config.path}/#{@attachment.prefix}/#{@attachment.id}/#{style}"
-
-    path: (style) ->
-      "#{@dir(style)}/#{@attachment.name}#{@attachment.extension}"
-
-    flushWrites: (cb) ->
-      store = @
-      writes = for { style, file } in store.pendingWrites
-        do (style, file) =>
-          (done) ->
-            fs.mkdir store.dir(style), (err) ->
-              return done(err) if err?
-              fs.copy file, store.path(style), done
-
-      async.parallel writes, (err) ->
-        return cb(err) if err?
-        store.pendingWrites = []
-        cb()
-
-    delete: (style) ->
-
-    copyToLocalFile: (style, path) ->
+  Store.prototype.filePath = (style) ->
+    path.join config.dir, @path(style)

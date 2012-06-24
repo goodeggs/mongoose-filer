@@ -18,12 +18,7 @@ module.exports = attachments = (config) ->
   tmpDir = config.tmpDir or process.env.TMPDIR
   assert.ok(path.existsSync(tmpDir), "#{tmpDir} does not exist")
 
-  if config.storage.dir?
-    storage = require('./storage/filesystem')(config.storage.dir)
-  else if config.storage.s3?
-    storage = require('./storage/s3')(config.storage.s3)
-  else
-    throw "No valid storage configured in #{config}"
+  storage = require('./storage')(config.storage)
 
   Attachment: class Attachment
 
