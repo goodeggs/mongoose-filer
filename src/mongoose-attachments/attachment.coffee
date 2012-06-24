@@ -11,6 +11,7 @@ exports = module.exports = class Attachment
     constructor: (@id, @options={}) ->
       @id ?= new Date().getTime()
       @prefix = @options.prefix or "default"
+      @styles = @options.styles or []
       @store = new Store(@)
       @file(@options.file) if @options.file?
 
@@ -20,7 +21,8 @@ exports = module.exports = class Attachment
       @name = @options.name or @file.name.replace /(\..*?)$/, ''
 
     save: (cb) ->
-      processor = new Processor(@file, styles: @options.styles)
+      @store.pendingWrites.push style: 'original', file: @file.path
+      processor = new Processor(@file, styles: @styles)
       processor.on 'convert', (result) => @store.pendingWrites.push result
       processor.on 'done', => @store.flushWrites cb
       processor.on 'error', cb

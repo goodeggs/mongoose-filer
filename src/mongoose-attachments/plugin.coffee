@@ -1,5 +1,7 @@
+async = require 'async'
 mongoose = require 'mongoose'
 _ = require 'underscore'
+Attachment = require './attachment'
 
 Attachments = new mongoose.Schema
   name: type: String, required: true
@@ -26,8 +28,10 @@ exports = module.exports = (schema, options) ->
     schema.attachments = {} # Store options per attachment name
     schema.add 'attachments': [ Attachments ]
     schema.pre 'save', (next) ->
-#      console.log "Processing attachments for", schema.attachments
-      next()
+      options.prefix ?= @modelName
+      saves = for attachment in @attachments when attachment.file?
+        ( (cb) -> new Attachment(attachment.id, options).save cb)
+      async.parallel saves, next
 
   name = options.name
   schema.attachments[name] = options

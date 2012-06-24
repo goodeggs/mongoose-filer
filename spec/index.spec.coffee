@@ -61,6 +61,7 @@ describe "attachments", ->
       it "writes to filesystem paths", (done) ->
         attachment.save (err) ->
           expect(err).toBeFalsy()
+          expect(attachment.store.filePath 'original').exists()
           expect(attachment.store.filePath 'thumb').exists()
           expect(attachment.store.filePath 'croppable').exists()
           expect(attachment.store.filePath 'big').exists()

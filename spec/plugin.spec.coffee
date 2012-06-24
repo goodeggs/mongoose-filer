@@ -1,6 +1,5 @@
 require './support/spec_helper'
 mongoose = require 'mongoose'
-KnoxClient = require 'knox'
 
 config =
   storage:
@@ -9,7 +8,7 @@ config =
       secret_access_key: "SECRET_ACCESS_KEY"
       bucket: "mongoose_attachments_test"
 
-{ hasAttachment } = require('..')(config)
+{ Attachment, hasAttachment } = require('..')(config)
 
 beforeAll ->
   mongoose.connect 'mongodb://localhost/mongoose-attachments_test'
@@ -23,7 +22,7 @@ describe "Mongoose plugin", ->
     type: 'image/jpeg'
 
   beforeEach ->
-    spyOn(KnoxClient.prototype, 'putFile').andCallback() # Stub knox
+    spyOn(Attachment.prototype, 'save').andCallback()
 
   describe "Attachment model", ->
 
@@ -43,7 +42,7 @@ describe "Mongoose plugin", ->
       schema = new mongoose.Schema
       schema.plugin hasAttachment,
         name: 'avatar'
-        styles: { thumb: '100x100^', small: '400x4 00>' }
+        styles: { thumb: '100x100^' }
         contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
       Model = mongoose.model 'OneAttachment', schema
 
@@ -96,6 +95,19 @@ describe "Mongoose plugin", ->
 
         model.avatar = file
         expect(model.attachments.length).toEqual(2)
+
+      it "saves two new attachments", (done) ->
+        model = new Model()
+        model.avatar = file
+        model.anything =
+          path: file.path
+          contentType: 'application/octet-stream'
+
+        model.save (err) ->
+          expect(err).toBeFalsy()
+          expect(Attachment.prototype.save.callCount).toEqual 2
+          done()
+
 
 
 
