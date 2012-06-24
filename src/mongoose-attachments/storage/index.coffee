@@ -8,7 +8,10 @@ exports = module.exports = class Storage
     @pendingWrites = []
 
   path: (style) ->
-    path.join '/', @attachment.prefix, @attachment.id, style, "#{@attachment.name}#{@attachment.extension}"
+    path.join '/', @attachment.prefix, @attachment.id, style, "#{@attachment.fileName}"
+
+  url: (style) ->
+    path.join Storage.baseUrl, @path(style)
 
   flushWrites: (cb) ->
     store = @
@@ -34,10 +37,13 @@ exports = module.exports = class Storage
     throw "Storage adapter not loaded"
 
 
-exports.configure = (config) ->
+exports.baseUrl = "http://locahost:3000/images"
 
-  adapter = Object.keys(config)[0]
+exports.configure = (config) ->
+  Storage.baseUrl = config.baseUrl if config.baseUrl?
+
+  adapter = Object.keys(config.storage)[0]
   assert.ok(adapter, "Storage details are not in config")
 
   # Mix in adapter
-  require("./#{adapter}")(Storage, config[adapter])
+  require("./#{adapter}")(Storage, config.storage[adapter])

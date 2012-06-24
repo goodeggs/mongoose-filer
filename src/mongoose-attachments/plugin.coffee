@@ -21,20 +21,35 @@ Attachments.path('contentType').validate (v) ->
   return !contentTypes? or (v in contentTypes)
 , "acceptable content type"
 
+Attachments.method
+  url: (style) ->
+    @attachment ||=  new Attachment @parent.id,
+      name: @fileName
+      prefix: @prefix()
+      styles: @parent.schema.attachments[@name].styles
+
+    @attachment.url(style)
+
+  prefix: ->
+    @parent.schema.attachments[@name].prefix or "#{@parent.constructor.modelName}/#{@name}"
+
 
 exports = module.exports = (schema, options) ->
 
+  name = options.name
+  schema.attachments ||= {}
+  schema.attachments[name] = options
+
   if !schema.path 'attachments'
-    schema.attachments = {} # Store options per attachment name
     schema.add 'attachments': [ Attachments ]
     schema.pre 'save', (next) ->
-      options.prefix ?= "#{@modelName}/#{name}"
       saves = for attachment in @attachments when attachment.isNew && attachment.file?
-        ( (cb) -> new Attachment(attachment.id, options).save cb)
+        a = new Attachment @id,
+          prefix: attachment.prefix()
+          styles: options.styles
+          file: attachment.file
+        (cb) -> a.save cb
       async.parallel saves, next
-
-  name = options.name
-  schema.attachments[name] = options
 
   schema.virtual(name).get ->
     _(@attachments).find (a) -> a.name == name

@@ -1,6 +1,11 @@
 require './support/spec_helper'
 mongoose = require 'mongoose'
-{ Attachment, hasAttachment } = require('..')
+attachments = require '..'
+{Attachment, hasAttachment} = attachments
+
+
+# TODO: required validator
+# TODO: remove files on Attachment#remove
 
 beforeAll ->
   mongoose.connect 'mongodb://localhost/mongoose-attachments_test'
@@ -14,6 +19,11 @@ describe "Mongoose plugin", ->
     type: 'image/jpeg'
 
   beforeEach ->
+    attachments.configure
+      baseUrl: 'http://localhost:3000',
+      storage:
+        filesystem:
+          dir: './tmp'
     spyOn(Attachment.prototype, 'save').andCallback()
 
   describe "Attachment model", ->
@@ -50,6 +60,7 @@ describe "Mongoose plugin", ->
         expect(model.avatar.fileName).toEqual file.name
         expect(model.avatar.contentType).toEqual file.type
         expect(model.avatar.file).toEqual file.path
+        expect(model.avatar.url('thumb')).toEqual "http:/localhost:3000/OneAttachment/avatar/#{model.id}/thumb/clark_summit.jpg"
 
       it "validates content type and passes", (done) ->
         model.avatar = file

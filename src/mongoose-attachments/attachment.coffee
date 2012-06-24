@@ -13,12 +13,12 @@ exports = module.exports = class Attachment
       @prefix = @options.prefix or "default"
       @styles = @options.styles or []
       @store = new Storage(@)
-      @file(@options.file) if @options.file?
-
-    file: (file) ->
-      @file = file
-      @extension = extensions[@file.type]
-      @name = @options.name or @file.name.replace /(\..*?)$/, ''
+      @file = @options.file
+      if @options.name
+        @fileName = @options.name
+      else if @file
+        @fileName = @file.name
+        @fileName?.replace(/(\..*?)$/,  extensions[@file.type]) if extensions[@file.type]
 
     save: (cb) ->
       @store.pendingWrites.push style: 'original', file: @file.path
@@ -30,3 +30,6 @@ exports = module.exports = class Attachment
 
     path: (style) ->
       @store.path(style)
+
+    url: (style) ->
+      @store.url(style)
