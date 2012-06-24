@@ -1,5 +1,6 @@
 async = require 'async'
 assert = require 'assert'
+path = require 'path'
 
 exports = module.exports = (config) ->
 
@@ -17,7 +18,7 @@ exports.Store = class Store
     @pendingWrites = []
 
   path: (style) ->
-    "/#{@attachment.prefix}/#{@attachment.id}/#{style}/#{@attachment.name}#{@attachment.extension}"
+    path.join '/', @attachment.prefix, @attachment.id, style, "#{@attachment.name}#{@attachment.extension}"
 
   flushWrites: (cb) ->
     store = @
