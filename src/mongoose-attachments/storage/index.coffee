@@ -2,17 +2,7 @@ async = require 'async'
 assert = require 'assert'
 path = require 'path'
 
-exports = module.exports = (config) ->
-
-  adapter = Object.keys(config)[0]
-  assert.ok(adapter, "Storage is not configured")
-
-  # Mix in adapter
-  require("./#{adapter}")(exports.Store, config[adapter])
-
-  Store: exports.Store
-
-exports.Store = class Store
+exports = module.exports = class Storage
 
   constructor: (@attachment) ->
     @pendingWrites = []
@@ -42,3 +32,12 @@ exports.Store = class Store
 
   copyToLocalFile: (style, file, cb) ->
     throw "Storage adapter not loaded"
+
+
+exports.configure = (config) ->
+
+  adapter = Object.keys(config)[0]
+  assert.ok(adapter, "Storage details are not in config")
+
+  # Mix in adapter
+  require("./#{adapter}")(Storage, config[adapter])

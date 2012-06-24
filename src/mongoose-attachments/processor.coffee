@@ -4,20 +4,12 @@ EventEmitter = require('events').EventEmitter
 assert = require 'assert'
 path = require 'path'
 
-tmpDir  = null
 tmpFile = ->
   name = ""
   name += Math.floor(Math.random() * 16).toString(16) for i in [0...32]
-  path.join tmpDir, name
+  path.join Processor.tmpDir, name
 
-
-exports = module.exports = (config) ->
-  tmpDir = config.tmpDir or process.env.TMPDIR
-  assert.ok(path.existsSync(tmpDir), "#{tmpDir} does not exist")
-
-  Processor: exports.Processor
-
-exports.Processor = class Processor extends EventEmitter
+exports = module.exports = class Processor extends EventEmitter
 
   constructor: (@file, @options={}) ->
 
@@ -50,3 +42,7 @@ exports.Processor = class Processor extends EventEmitter
       @emit('done')
       cb(err) if cb?
 
+for dir in [process.env.TMPDIR, '/tmp']
+  Processor.tmpDir = dir if !Processor.tmpDir && path.existsSync(dir)
+
+assert.ok Processor.tmpDir, "Unable to find temp dir. Please set environment variable TMPDIR."

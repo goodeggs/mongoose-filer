@@ -1,14 +1,6 @@
 require './support/spec_helper'
 mongoose = require 'mongoose'
-
-config =
-  storage:
-    s3:
-      access_key_id: "ACCESS_KEY_ID"
-      secret_access_key: "SECRET_ACCESS_KEY"
-      bucket: "mongoose_attachments_test"
-
-{ Attachment, hasAttachment } = require('..')(config)
+{ Attachment, hasAttachment } = require('..')
 
 beforeAll ->
   mongoose.connect 'mongodb://localhost/mongoose-attachments_test'

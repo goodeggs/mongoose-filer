@@ -1,7 +1,6 @@
-module.exports = (config) ->
-
-  storage = require('./storage')(config.storage)
-
-  Processor: (require('./processor')(config)).Processor
-  Attachment: require('./attachment')
-  hasAttachment: require('./plugin')
+module.exports =
+  configure: (config) ->
+    require('./storage').configure(config.storage)
+  Processor: require './processor'
+  Attachment: require './attachment'
+  hasAttachment: require './plugin'

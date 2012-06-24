@@ -1,5 +1,5 @@
-Processor = require("./processor").Processor
-Store = require("./storage").Store
+Processor = require "./processor"
+Storage = require "./storage"
 
 extensions =
   "image/jpeg": ".jpg"
@@ -12,7 +12,7 @@ exports = module.exports = class Attachment
       @id ?= new Date().getTime()
       @prefix = @options.prefix or "default"
       @styles = @options.styles or []
-      @store = new Store(@)
+      @store = new Storage(@)
       @file(@options.file) if @options.file?
 
     file: (file) ->
