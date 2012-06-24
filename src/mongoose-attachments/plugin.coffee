@@ -29,7 +29,7 @@ exports = module.exports = (schema, options) ->
     schema.add 'attachments': [ Attachments ]
     schema.pre 'save', (next) ->
       options.prefix ?= @modelName
-      saves = for attachment in @attachments when attachment.file?
+      saves = for attachment in @attachments when attachment.isNew && attachment.file?
         ( (cb) -> new Attachment(attachment.id, options).save cb)
       async.parallel saves, next
 

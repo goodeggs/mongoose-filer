@@ -106,7 +106,9 @@ describe "Mongoose plugin", ->
         model.save (err) ->
           expect(err).toBeFalsy()
           expect(Attachment.prototype.save.callCount).toEqual 2
-          done()
+          model.save (err) ->
+            expect(Attachment.prototype.save.callCount).toEqual 2
+            done()
 
 
 
