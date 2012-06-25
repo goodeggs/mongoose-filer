@@ -8,7 +8,7 @@ Attachments = new mongoose.Schema
   fileName: String
   contentType: String
   createdAt: type: Date, default: Date.now
-  , strict: true
+, strict: true
 
 Attachments.virtual('file')
   .get ->

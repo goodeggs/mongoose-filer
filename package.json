@@ -1,7 +1,7 @@
 {
     "name"            : "mongoose-attachments"
-  , "version"         : "0.0.1"
-  , "description"     : ""
+  , "version"         : "0.0.2"
+  , "description"     : "Upload, resize and crop images, upload to S3 and and attach them to Mongoose models with this easy to use plugin for Mongoose."
   , "homepage"        : "http://github.com/goodeggs/mongoose-attachments"
   , "repository"      : {
       "type" : "git"
