@@ -8,7 +8,7 @@ Attachments = new mongoose.Schema
   fileName: String
   contentType: String
   createdAt: type: Date, default: Date.now
-, strict: true
+  , strict: true
 
 Attachments.virtual('file')
   .get ->
@@ -26,13 +26,23 @@ Attachments.method
     @attachment ||=  new Attachment @parent.id,
       name: @fileName
       prefix: @prefix()
-      styles: @parent.schema.attachments[@name].styles
+      styles: @config().styles
 
     @attachment.url(style)
 
   prefix: ->
-    @parent.schema.attachments[@name].prefix or "#{@parent.constructor.modelName}/#{@name}"
+    @config().prefix or "#{@parent.constructor.modelName}/#{@name}"
 
+  config: ->
+    @parent.schema.attachments[@name]
+
+Attachments.pre 'save', (next) ->
+  return next() unless @isNew and @file?
+  attachment = new Attachment @parent.id,
+    prefix: @prefix()
+    styles: @config().styles
+    file: @file
+  attachment.save next
 
 exports = module.exports = (schema, options) ->
 
@@ -42,14 +52,6 @@ exports = module.exports = (schema, options) ->
 
   if !schema.path 'attachments'
     schema.add 'attachments': [ Attachments ]
-    schema.pre 'save', (next) ->
-      saves = for attachment in @attachments when attachment.isNew && attachment.file?
-        a = new Attachment @id,
-          prefix: attachment.prefix()
-          styles: options.styles
-          file: attachment.file
-        (cb) -> a.save cb
-      async.parallel saves, next
 
   schema.virtual(name).get ->
     _(@attachments).find (a) -> a.name == name
@@ -64,5 +66,3 @@ exports = module.exports = (schema, options) ->
         file: value.path
 
 exports.MongooseAttachment = mongoose.model 'Attachment', Attachments
-
-
