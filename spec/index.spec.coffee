@@ -59,7 +59,7 @@ describe "attachments", ->
         attachment = new attachments.Attachment '123', file: file, prefix: "photos", styles: styles
 
       it "has urls for styles", ->
-        expect(attachment.url 'thumb').toEqual "http:/localhost:3000/uploads/photos/123/thumb/clark_summit.jpg"
+        expect(attachment.url 'thumb').toEqual "http://localhost:3000/uploads/photos/123/thumb/clark_summit.jpg"
 
       it "writes to filesystem paths", (done) ->
         attachment.save (err) ->

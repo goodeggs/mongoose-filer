@@ -11,7 +11,7 @@ exports = module.exports = class Storage
     path.join '/', @attachment.prefix, @attachment.id, style, "#{@attachment.fileName}"
 
   url: (style) ->
-    path.join Storage.baseUrl, @path(style)
+    "#{Storage.baseUrl}#{@path(style)}"
 
   flushWrites: (cb) ->
     store = @
