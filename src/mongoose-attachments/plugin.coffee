@@ -38,10 +38,14 @@ Attachments.method
 
 Attachments.pre 'save', (next) ->
   return next() unless @isNew and @file?
+  console.log "Saving attachment", @, @file
   attachment = new Attachment @parent.id,
     prefix: @prefix()
     styles: @config().styles
-    file: @file
+    file: 
+      name: @fileName
+      type: @contentType
+      path: @file
   attachment.save next
 
 exports = module.exports = (schema, options) ->
