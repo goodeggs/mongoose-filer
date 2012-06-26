@@ -8,7 +8,8 @@ exports = module.exports = class Storage
     @pendingWrites = []
 
   path: (style) ->
-    path.join '/', @attachment.prefix, @attachment.id, style, "#{@attachment.fileName}"
+    att = @attachment.pathAttributes
+    path.join '/', att.modelName, att.attributeName, att.id, style, att.fileName
 
   url: (style) ->
     "#{Storage.baseUrl}#{@path(style)}"

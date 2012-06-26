@@ -60,7 +60,7 @@ describe "Mongoose plugin", ->
         expect(model.avatar.fileName).toEqual file.name
         expect(model.avatar.contentType).toEqual file.type
         expect(model.avatar.file).toEqual file.path
-        expect(model.avatar.url('thumb')).toEqual "http://localhost:3000/OneAttachment/avatar/#{model.id}/thumb/clark_summit.jpg"
+        expect(model.avatar.url('thumb')).toEqual "http://localhost:3000/one_attachment/avatar/#{model.id}/thumb/clark_summit.jpg"
 
       it "validates content type and passes", (done) ->
         model.avatar = file
@@ -68,6 +68,7 @@ describe "Mongoose plugin", ->
 
       it "validates content type and fails", (done) ->
         model.avatar =
+          name: file.name
           path: file.path
           type: 'application/octet-stream'
 
@@ -84,6 +85,7 @@ describe "Mongoose plugin", ->
       it "does not validate content type", (done) ->
         model = new Model()
         model.anything =
+          name: file.name
           path: file.path
           contentType: 'application/octet-stream'
         model.save done
@@ -92,6 +94,7 @@ describe "Mongoose plugin", ->
         model = new Model()
         model.avatar = file
         model.anything =
+          name: file.name
           path: file.path
           contentType: 'application/octet-stream'
         expect(model.attachments.length).toEqual(2)
@@ -103,6 +106,7 @@ describe "Mongoose plugin", ->
         model = new Model()
         model.avatar = file
         model.anything =
+          name: file.name
           path: file.path
           contentType: 'application/octet-stream'
 

@@ -16,6 +16,20 @@ Attachments.virtual('file')
   .set (value) ->
     @_file = value
 
+Attachments.virtual('config').get ->
+  @parent.schema.attachments[@name]
+
+Attachments.virtual('attachedFile').get ->
+  @_attachedFile ?=  new Attachment @parent.id,
+    modelName: @parent.constructor.modelName
+    attributeName: @name
+    fileName: @fileName
+    styles: @config.styles
+    file:
+      name: @fileName
+      type: @contentType
+      path: @file
+
 Attachments.path('contentType').validate (v) ->
   contentTypes = @parent?.schema.attachments[@name].contentType
   return !contentTypes? or (v in contentTypes)
@@ -23,30 +37,11 @@ Attachments.path('contentType').validate (v) ->
 
 Attachments.method
   url: (style) ->
-    @attachment ||=  new Attachment @parent.id,
-      name: @fileName
-      prefix: @prefix()
-      styles: @config().styles
-
-    @attachment.url(style)
-
-  prefix: ->
-    @config().prefix or "#{@parent.constructor.modelName}/#{@name}"
-
-  config: ->
-    @parent.schema.attachments[@name]
+    @attachedFile.url(style)
 
 Attachments.pre 'save', (next) ->
   return next() unless @isNew and @file?
-  console.log "Saving attachment", @, @file
-  attachment = new Attachment @parent.id,
-    prefix: @prefix()
-    styles: @config().styles
-    file: 
-      name: @fileName
-      type: @contentType
-      path: @file
-  attachment.save next
+  @attachedFile.save next
 
 exports = module.exports = (schema, options) ->
 
@@ -62,11 +57,14 @@ exports = module.exports = (schema, options) ->
 
   schema.virtual(name).set (value) ->
     (existing = @get(name)) and existing.remove()
-    if value.path # it's a file
+    if value.path? # It's a file
       @attachments.push
         name: name
         fileName: value.name
         contentType: value.type
         file: value.path
+    else
+      value.name = name
+      @attachments.push value
 
 exports.MongooseAttachment = mongoose.model 'Attachment', Attachments

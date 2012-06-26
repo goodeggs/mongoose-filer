@@ -8,5 +8,7 @@ module.exports = s3 = (Store, config) ->
     bucket: config.bucket
 
   Store.prototype.write = (style, file, cb) ->
+    path = @path(style)
+    console.log "S3: writing #{path}"
     client.putFile file, @path(style), 'Content-Type': @attachment.file.type, cb
 

@@ -1,3 +1,4 @@
+inflect = require "inflect"
 Processor = require "./processor"
 Storage = require "./storage"
 
@@ -9,16 +10,19 @@ extensions =
 exports = module.exports = class Attachment
 
     constructor: (@id, @options={}) ->
-      @id ?= new Date().getTime()
-      @prefix = @options.prefix or "default"
+      @modelName = inflect.underscore @options.modelName
+      @attributeName = inflect.underscore @options.attributeName
       @styles = @options.styles or []
       @store = new Storage(@)
       @file = @options.file
-      if @options.name
-        @fileName = @options.name
-      else if @file
+      if @file
         @fileName = @file.name
         @fileName?.replace(/(\..*?)$/,  extensions[@file.type]) if extensions[@file.type]
+      @pathAttributes =
+        id: @id
+        modelName: @modelName
+        attributeName: @attributeName
+        fileName: @fileName
 
     save: (cb) ->
       @store.pendingWrites.push style: 'original', file: @file.path
