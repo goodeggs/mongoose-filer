@@ -41,7 +41,11 @@ Attachments.method
 
   toObject: (options) ->
     json = mongoose.Model.prototype.toObject.call(@, options)
-    json['client'] = 'heya!' if options.client
+    if options.client
+      json[@name] = object = {}
+      styles = _.extend {original: ''}, @config.styles
+      for own style, options of styles
+        object[style] = url: @url(style)
     json
 
 Attachments.pre 'save', (next) ->

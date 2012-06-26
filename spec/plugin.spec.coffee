@@ -83,7 +83,8 @@ describe "Mongoose plugin", ->
 
         it "includes attachments urls in json", ->
           json = JSON.parse JSON.stringify model.toJSON(client: true)
-          expect(json.attachments[0].client).toEqual "heya!"
+          expect(json.attachments[0].avatar.original.url).toEqual "http://localhost:3000/one_attachment/avatar/#{model.id}/original/clark_summit.jpg"
+          expect(json.attachments[0].avatar.thumb.url).toEqual "http://localhost:3000/one_attachment/avatar/#{model.id}/thumb/clark_summit.jpg"
 
     describe "with another attachment", ->
       beforeEach ->
