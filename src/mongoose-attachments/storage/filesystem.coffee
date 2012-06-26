@@ -10,4 +10,4 @@ module.exports = filesystem = (Store, config) ->
       fs.copy file, destFile, cb
 
   Store.prototype.filePath = (style) ->
-    path.join config.dir, @path(style, @attachment.pathAttributes)
+    path.join config.dir, @path(style, @attachedFile.pathAttributes)

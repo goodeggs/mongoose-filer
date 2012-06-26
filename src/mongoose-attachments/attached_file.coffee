@@ -7,7 +7,7 @@ extensions =
   "image/png": ".png"
   "image/gif": ".gif"
 
-exports = module.exports = class Attachment
+exports = module.exports = class AttachedFile
 
     constructor: (@id, @options={}) ->
       @modelName = inflect.underscore @options.modelName

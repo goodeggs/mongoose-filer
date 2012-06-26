@@ -1,7 +1,7 @@
 require './support/spec_helper'
 mongoose = require 'mongoose'
 attachments = require '..'
-{Attachment, hasAttachment} = attachments
+{AttachedFile, hasAttachment} = attachments
 
 
 # TODO: required validator
@@ -24,7 +24,7 @@ describe "Mongoose plugin", ->
       storage:
         filesystem:
           dir: './tmp'
-    spyOn(Attachment.prototype, 'save').andCallback()
+    spyOn(AttachedFile.prototype, 'save').andCallback()
 
   describe "Attachment model", ->
 
@@ -112,9 +112,9 @@ describe "Mongoose plugin", ->
 
         model.save (err) ->
           expect(err).toBeFalsy()
-          expect(Attachment.prototype.save.callCount).toEqual 2
+          expect(AttachedFile.prototype.save.callCount).toEqual 2
           model.save (err) ->
-            expect(Attachment.prototype.save.callCount).toEqual 2
+            expect(AttachedFile.prototype.save.callCount).toEqual 2
             done()
 
 

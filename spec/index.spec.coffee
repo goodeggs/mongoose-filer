@@ -1,5 +1,6 @@
 require './support/spec_helper'
 attachments = require '..'
+{ AttachedFile, Processor } = attachments
 
 fs = require 'fs'
 path = require 'path'
@@ -24,14 +25,14 @@ describe "attachments", ->
           filesystem:
             dir: "./tmp"
 
-    it "initializes", ->
-      expect(attachments.Processor).toBeTruthy()
+    it "bootstraps storage", ->
+      expect(require('../lib/mongoose-attachments/storage').prototype.filePath).toBeTruthy()
 
-    describe "Attachment", ->
+    describe "AttachedFile", ->
       attachment = null
 
       beforeEach ->
-        attachment = new attachments.Attachment '123', file: file, modelName: "Post", attributeName: 'photo', styles: styles
+        attachment = new AttachedFile '123', file: file, modelName: "Post", attributeName: 'photo', styles: styles
 
       it "has urls for styles", ->
         expect(attachment.url 'thumb').toEqual "http://localhost:3000/uploads/post/photo/123/thumb/clark_summit.jpg"
@@ -55,12 +56,12 @@ describe "attachments", ->
             secret_access_key: "SECRET_ACCESS_KEY"
             bucket: "mongoose_attachments_test"
 
-    describe "Attachment", ->
+    describe "AttachedFile", ->
       attachment = null
       putFile = null
 
       beforeEach ->
-        attachment = new attachments.Attachment '123', file: file, modelName: "Post", attributeName: 'photo', styles: styles
+        attachment = new AttachedFile '123', file: file, modelName: "Post", attributeName: 'photo', styles: styles
 
       describe "writing", ->
         beforeEach ->

@@ -4,11 +4,11 @@ path = require 'path'
 
 exports = module.exports = class Storage
 
-  constructor: (@attachment) ->
+  constructor: (@attachedFile) ->
     @pendingWrites = []
 
   path: (style) ->
-    att = @attachment.pathAttributes
+    att = @attachedFile.pathAttributes
     path.join '/', att.modelName, att.attributeName, att.id, style, att.fileName
 
   url: (style) ->

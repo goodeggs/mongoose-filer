@@ -1,7 +1,7 @@
 async = require 'async'
 mongoose = require 'mongoose'
 _ = require 'underscore'
-Attachment = require './attachment'
+AttachedFile = require './attached_file'
 
 Attachments = new mongoose.Schema
   name: type: String, required: true
@@ -20,7 +20,7 @@ Attachments.virtual('config').get ->
   @parent.schema.attachments[@name]
 
 Attachments.virtual('attachedFile').get ->
-  @_attachedFile ?=  new Attachment @parent.id,
+  @_attachedFile ?=  new AttachedFile @parent.id,
     modelName: @parent.constructor.modelName
     attributeName: @name
     fileName: @fileName
