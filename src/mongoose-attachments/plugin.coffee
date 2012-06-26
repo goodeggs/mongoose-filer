@@ -67,4 +67,4 @@ exports = module.exports = (schema, options) ->
       value.name = name
       @attachments.push value
 
-exports.MongooseAttachment = mongoose.model 'Attachment', Attachments
+exports.Attachment = mongoose.model 'Attachment', Attachments

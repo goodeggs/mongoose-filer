@@ -29,7 +29,7 @@ describe "Mongoose plugin", ->
   describe "Attachment model", ->
 
     it "has non-persistant file path", ->
-      attachment = new hasAttachment.MongooseAttachment
+      attachment = new hasAttachment.Attachment
         name: 'avatar'
         fileName: file.name
         contentType: file.type
