@@ -15,31 +15,6 @@ describe "attachments", ->
     croppable: '600x600>'
     big: '1000x1000>'
 
-  describe "Processor", ->
-    processor = null
-
-    beforeEach ->
-      processor = new attachments.Processor file, styles: styles
-      processor.on 'error', (err) ->
-        jasmine.getEnv().currentSpec.fail(err)
-
-    it "defines conversions", ->
-      conversions = processor.conversions()
-      expect(conversions.length).toEqual 3
-      expect(conversions[0].args[0...-1]).toEqual [ './spec/clark_summit.jpg', '-resize', '100x100^', '-gravity', 'center', '-extent', '100x100']
-
-    it "creates all sizes", (done) ->
-      images = {}
-      processor.on 'convert', (result) ->
-        images[result.style] = result.file
-      processor.on 'done', ->
-        expect(images['thumb']).exists()
-        expect(images['croppable']).exists()
-        expect(images['big']).exists()
-        done()
-      processor.convert (err) ->
-        expect(err).toBeFalsy()
-
   describe "when configured for dir storage", ->
 
     beforeEach ->

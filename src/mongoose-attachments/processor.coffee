@@ -18,7 +18,7 @@ exports = module.exports = class Processor extends EventEmitter
     conversions = for style, conversion of @options.styles
       do (style, conversion) =>
         destFile = "#{destFileBase}-#{style}"
-        args = [@file.path, '-resize', conversion]
+        args = [@file.path, '-auto-orient', '-resize', conversion]
         # See http://www.imagemagick.org/Usage/resize/#fill
         if groups = conversion.match /^(.*)\^$/
           args = args.concat ['-gravity', 'center', '-extent', groups[1]]
