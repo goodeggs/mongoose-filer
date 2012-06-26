@@ -117,6 +117,27 @@ describe "Mongoose plugin", ->
             expect(AttachedFile.prototype.save.callCount).toEqual 2
             done()
 
+  describe "with required attachment", ->
+    schema = null
+    Model = null
+
+    beforeEach ->
+      schema = new mongoose.Schema
+        name: type: String, required: true
+      schema.plugin hasAttachment,
+        name: 'avatar'
+        styles: { thumb: '100x100^' }
+        contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
+        required: true
+      Model = mongoose.model 'RequiredAttachment', schema
+
+    it "validates required", (done) ->
+      Model.create name: 'Name', (err) ->
+        expect(err).toBeTruthy()
+        expect(err.errors.avatar).toBeTruthy()
+        done()
+
+
 
 
 

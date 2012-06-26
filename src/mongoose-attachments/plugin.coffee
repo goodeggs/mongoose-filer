@@ -67,4 +67,14 @@ exports = module.exports = (schema, options) ->
       value.name = name
       @attachments.push value
 
+  # This implementation is not quite right. It happens after other validation has succeeded but
+  # before save so if other validation fails, this is not called. There is no mongoose hook in to validate.
+  if options.required
+    schema.pre 'save', (next) ->
+      return next() if @get(name)?
+      @invalidate name, 'required'
+      next(@_validationError)
+
+
+
 exports.Attachment = mongoose.model 'Attachment', Attachments
