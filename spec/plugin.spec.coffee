@@ -76,6 +76,15 @@ describe "Mongoose plugin", ->
           expect(err?.errors?.contentType).toBeTruthy()
           done()
 
+      describe "with attached file", ->
+        beforeEach (done) ->
+          model.avatar = file
+          model.save(done)
+
+        it "includes attachments urls in json", ->
+          json = JSON.parse JSON.stringify model.toJSON(client: true)
+          expect(json.attachments[0].client).toEqual "heya!"
+
     describe "with another attachment", ->
       beforeEach ->
         schema.plugin hasAttachment,

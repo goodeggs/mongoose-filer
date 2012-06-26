@@ -39,6 +39,11 @@ Attachments.method
   url: (style) ->
     @attachedFile.url(style)
 
+  toObject: (options) ->
+    json = mongoose.Model.prototype.toObject.call(@, options)
+    json['client'] = 'heya!' if options.client
+    json
+
 Attachments.pre 'save', (next) ->
   return next() unless @isNew and @file?
   @attachedFile.save next
