@@ -26,7 +26,7 @@ describe "attachments", ->
             dir: "./tmp"
 
     it "bootstraps storage", ->
-      expect(require('../lib/mongoose-attachments/storage').prototype.filePath).toBeTruthy()
+      expect(require('../lib/mongoose-filer/storage').prototype.filePath).toBeTruthy()
 
     describe "AttachedFile", ->
       attachment = null

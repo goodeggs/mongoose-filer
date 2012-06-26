@@ -8,7 +8,7 @@ attachments = require '..'
 # TODO: remove files on Attachment#remove
 
 beforeAll ->
-  mongoose.connect 'mongodb://localhost/mongoose-attachments_test'
+  mongoose.connect 'mongodb://localhost/mongoose-filer_test'
 afterAll ->
   mongoose.disconnect()
 
