@@ -6,6 +6,7 @@ exports = module.exports = class Storage
 
   constructor: (@attachedFile) ->
     @pendingWrites = []
+    @pendingDeletes = []
 
   path: (style) ->
     att = @attachedFile.pathAttributes
@@ -25,8 +26,17 @@ exports = module.exports = class Storage
       store.pendingWrites = []
       cb()
 
+
   flushDeletes: (cb) ->
-    cb()
+    store = @
+    deletes = for { style } in store.pendingDeletes
+      do (style) =>
+        (done) -> store.delete style, done
+
+    async.parallel deletes, (err) ->
+      return cb(err) if err?
+      store.pendingDeletes = []
+      cb()
 
   write: (style, file, cb) ->
     throw "Storage adapter not loaded"

@@ -32,6 +32,12 @@ exports = module.exports = class AttachedFile
       processor.on 'error', cb
       processor.convert()
 
+
+    remove: (cb) ->
+      @store.pendingDeletes.push style: 'original'
+      @store.pendingDeletes.push style: name for name of @styles
+      @store.flushDeletes(cb)
+
     path: (style) ->
       @store.path(style)
 

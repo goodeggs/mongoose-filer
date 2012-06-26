@@ -9,5 +9,8 @@ module.exports = filesystem = (Store, config) ->
       return cb(err) if err?
       fs.copy file, destFile, cb
 
+  Store.prototype.delete = (style, cb) ->
+    fs.unlink @filePath(style), cb
+
   Store.prototype.filePath = (style) ->
     path.join config.dir, @path(style, @attachedFile.pathAttributes)

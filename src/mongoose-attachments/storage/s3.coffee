@@ -12,3 +12,8 @@ module.exports = s3 = (Store, config) ->
     console.log "S3: writing #{path}"
     client.putFile file, @path(style), 'Content-Type': @attachedFile.file.type, cb
 
+  Store.prototype.delete = (style, cb) ->
+    path = @path(style)
+    console.log "S3: deleting #{path}"
+    client.deleteFile @path(style), cb
+
