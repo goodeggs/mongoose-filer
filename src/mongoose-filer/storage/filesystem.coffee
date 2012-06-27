@@ -10,7 +10,9 @@ module.exports = filesystem = (Store, config) ->
       fs.copy file, destFile, cb
 
   Store.prototype.delete = (style, cb) ->
-    fs.unlink @filePath(style), cb
+      fs.unlink @filePath(style), (err) ->
+        return cb() if err?.code == 'ENOENT' # Does not exist
+        cb(err)
 
   Store.prototype.filePath = (style) ->
     path.join config.dir, @path(style, @attachedFile.pathAttributes)

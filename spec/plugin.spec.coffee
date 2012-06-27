@@ -51,6 +51,21 @@ describe "Mongoose plugin", ->
       beforeEach ->
         model = new Model()
 
+      describe "with attachment but no file", ->
+        beforeEach (done) ->
+          model.avatar =
+            fileName: file.name
+            contentType: file.type
+          model.save (done)
+
+        it "has saved attachment", ->
+          expect(model.avatar.fileName).toEqual file.name
+          expect(model.avatar.url('thumb')).toBeTruthy()
+
+        it "removes attachment", (done) ->
+          model.avatar.remove()
+          model.save(done)
+
       describe "when model is saved", ->
 
         it "creates attachment from model data without file", (done) ->
