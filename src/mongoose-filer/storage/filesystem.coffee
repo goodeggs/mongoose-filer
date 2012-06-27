@@ -11,7 +11,9 @@ module.exports = filesystem = (Store, config) ->
 
   Store.prototype.delete = (style, cb) ->
       fs.unlink @filePath(style), (err) ->
-        return cb() if err?.code == 'ENOENT' # Does not exist
+        if err?.code == 'ENOENT' # Does not exist
+          console.error err
+          return cb()
         cb(err)
 
   Store.prototype.filePath = (style) ->
