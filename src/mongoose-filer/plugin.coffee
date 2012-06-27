@@ -52,9 +52,12 @@ Attachments.pre 'save', (next) ->
   @attachedFile.save next
 
 Attachments.pre 'remove', (next) ->
-  attachedFile = @attachedFile
-  @parent.post 'save', (cb) ->
-    attachedFile.remove cb
+  # Remove attached file and then remove hook from save in case it is called again
+  removeFn = (cb) =>
+    @attachedFile.remove cb
+    @parent.removePre removeFn
+
+  @parent.pre 'save', removeFn
   next()
 
 exports = module.exports = (schema, options) ->
