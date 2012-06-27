@@ -89,6 +89,9 @@ exports = module.exports = (schema, options) ->
       @invalidate name, 'required'
       next()
 
-
+  schema.pre 'remove', (next) ->
+    removes = for attachment in @attachments
+      (cb) -> attachment.get('attachedFile').remove cb
+    async.parallel removes, next
 
 exports.Attachment = mongoose.model 'Attachment', Attachments

@@ -51,7 +51,7 @@ describe "Mongoose plugin", ->
       beforeEach ->
         model = new Model()
 
-      describe "#save", ->
+      describe "when model is saved", ->
 
         it "creates attachment from file", ->
           model.avatar = file
@@ -86,7 +86,19 @@ describe "Mongoose plugin", ->
           expect(json.attachments[0].original.url).toEqual model.avatar.url('original')
           expect(json.attachments[0].thumb.url).toEqual model.avatar.url('thumb')
 
-      describe "#remove", ->
+      describe "when model is removed", ->
+        beforeEach (done) ->
+          model.avatar = file
+          model.save(done)
+          spyOn(AttachedFile.prototype, 'remove').andCallback()
+
+        it "removes attached file", (done) ->
+          model.remove (err) ->
+            done(err) if err?
+            expect(AttachedFile.prototype.remove).toHaveBeenCalled()
+            done()
+
+      describe "Attachment#remove", ->
         beforeEach (done) ->
           model.avatar = file
           model.save(done)
