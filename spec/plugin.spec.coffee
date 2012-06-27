@@ -3,8 +3,6 @@ mongoose = require 'mongoose'
 attachments = require '..'
 {AttachedFile, hasAttachment} = attachments
 
-
-# TODO: required validator
 # TODO: remove files on Attachment#remove
 
 beforeAll ->
@@ -53,30 +51,32 @@ describe "Mongoose plugin", ->
       beforeEach ->
         model = new Model()
 
-      it "creates attachment from file", ->
-        model.avatar = file
-        expect(model.attachments.length).toEqual 1
-        expect(model.avatar.name).toEqual 'avatar'
-        expect(model.avatar.fileName).toEqual file.name
-        expect(model.avatar.contentType).toEqual file.type
-        expect(model.avatar.file).toEqual file.path
-        expect(model.avatar.url('thumb')).toEqual "http://localhost:3000/one_attachment/avatar/#{model.id}/thumb/clark_summit.jpg"
+      describe "#save", ->
 
-      it "validates content type and passes", (done) ->
-        model.avatar = file
-        model.save done
+        it "creates attachment from file", ->
+          model.avatar = file
+          expect(model.attachments.length).toEqual 1
+          expect(model.avatar.name).toEqual 'avatar'
+          expect(model.avatar.fileName).toEqual file.name
+          expect(model.avatar.contentType).toEqual file.type
+          expect(model.avatar.file).toEqual file.path
+          expect(model.avatar.url('thumb')).toEqual "http://localhost:3000/one_attachment/avatar/#{model.id}/thumb/clark_summit.jpg"
 
-      it "validates content type and fails", (done) ->
-        model.avatar =
-          name: file.name
-          path: file.path
-          type: 'application/octet-stream'
+        it "validates content type and passes", (done) ->
+          model.avatar = file
+          model.save done
 
-        model.save (err) ->
-          expect(err?.errors?.contentType).toBeTruthy()
-          done()
+        it "validates content type and fails", (done) ->
+          model.avatar =
+            name: file.name
+            path: file.path
+            type: 'application/octet-stream'
 
-      describe "with attached file", ->
+          model.save (err) ->
+            expect(err?.errors?.contentType).toBeTruthy()
+            done()
+
+      describe "#toJSON", ->
         beforeEach (done) ->
           model.avatar = file
           model.save(done)
@@ -85,6 +85,20 @@ describe "Mongoose plugin", ->
           json = JSON.parse JSON.stringify model.toJSON(client: true)
           expect(json.attachments[0].original.url).toEqual model.avatar.url('original')
           expect(json.attachments[0].thumb.url).toEqual model.avatar.url('thumb')
+
+      describe "#remove", ->
+        beforeEach (done) ->
+          model.avatar = file
+          model.save(done)
+          spyOn(AttachedFile.prototype, 'remove').andCallback()
+
+        it "removes attached file", (done) ->
+          model.photo.remove()
+          model.save (err) ->
+            done(err) if err?
+            expect(AttachedFile.prototype.remove).toHaveBeenCalled()
+            done()
+
 
     describe "with another attachment", ->
       beforeEach ->
