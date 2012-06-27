@@ -142,8 +142,9 @@ describe "Mongoose plugin", ->
       Model = mongoose.model 'RequiredAttachment', schema
 
     it "validates required", (done) ->
-      Model.create name: 'Name', (err) ->
+      Model.create {}, (err) ->
         expect(err).toBeTruthy()
+        expect(err.errors.name).toBeTruthy()
         expect(err.errors.avatar).toBeTruthy()
         done()
 
