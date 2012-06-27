@@ -51,6 +51,12 @@ Attachments.pre 'save', (next) ->
   return next() unless @isNew and @file?
   @attachedFile.save next
 
+Attachments.pre 'remove', (next) ->
+  attachedFile = @attachedFile
+  @parent.post 'save', (cb) ->
+    attachedFile.remove cb
+  next()
+
 exports = module.exports = (schema, options) ->
 
   name = options.name
@@ -65,6 +71,8 @@ exports = module.exports = (schema, options) ->
 
   schema.virtual(name).set (value) ->
     (existing = @get(name)) and existing.remove()
+    return unless value? # Setting to null removes attachment
+
     if value.path? # It's a file
       @attachments.push
         name: name

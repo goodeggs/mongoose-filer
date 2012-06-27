@@ -93,7 +93,14 @@ describe "Mongoose plugin", ->
           spyOn(AttachedFile.prototype, 'remove').andCallback()
 
         it "removes attached file", (done) ->
-          model.photo.remove()
+          model.avatar.remove()
+          model.save (err) ->
+            done(err) if err?
+            expect(AttachedFile.prototype.remove).toHaveBeenCalled()
+            done()
+
+        it "removes when set to null", (done) ->
+          model.avatar = null
           model.save (err) ->
             done(err) if err?
             expect(AttachedFile.prototype.remove).toHaveBeenCalled()
