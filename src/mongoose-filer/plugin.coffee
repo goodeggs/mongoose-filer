@@ -55,7 +55,7 @@ Attachments.pre 'remove', (next) ->
   # Remove attached file and then remove hook from save in case it is called again
   removeFn = (cb) =>
     @attachedFile.remove cb
-    @parent.removePre removeFn
+    @parent.removePre 'save', removeFn
 
   @parent.pre 'save', removeFn
   next()
