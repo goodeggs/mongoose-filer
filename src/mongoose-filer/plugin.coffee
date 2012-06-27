@@ -17,7 +17,7 @@ Attachments.virtual('file')
     @_file = value
 
 Attachments.virtual('config').get ->
-  @parent.schema.attachments[@name]
+  @parent.schema.attachmentsConfig[@name]
 
 Attachments.virtual('attachedFile').get ->
   @_attachedFile ?=  new AttachedFile @parent.id,
@@ -31,7 +31,7 @@ Attachments.virtual('attachedFile').get ->
       path: @file
 
 Attachments.path('contentType').validate (v) ->
-  contentTypes = @parent?.schema.attachments[@name].contentType
+  contentTypes = @config.contentType
   return !contentTypes? or (v in contentTypes)
 , "acceptable content type"
 
@@ -52,7 +52,7 @@ Attachments.pre 'save', (next) ->
   @attachedFile.save next
 
 Attachments.pre 'remove', (next) ->
-  # Remove attached file and then remove hook from save in case it is called again
+  # Remove attached file and then remove hook from save in case save is called again
   removeFn = (cb) =>
     @attachedFile.remove cb
     @parent.removePre 'save', removeFn
@@ -63,8 +63,8 @@ Attachments.pre 'remove', (next) ->
 exports = module.exports = (schema, options) ->
 
   name = options.name
-  schema.attachments ||= {}
-  schema.attachments[name] = options
+  schema.attachmentsConfig ||= {}
+  schema.attachmentsConfig[name] = options
 
   if !schema.path 'attachments'
     schema.add 'attachments': [ Attachments ]
@@ -85,6 +85,9 @@ exports = module.exports = (schema, options) ->
     else
       value.name = name
       @attachments.push value
+
+    # Force $set for attachments to avoid https://jira.mongodb.org/browse/SERVER-1050
+    @attachments = @attachments[0..-1]
 
   if options.required
     schema.pre 'validate', (next) ->
