@@ -53,6 +53,14 @@ describe "Mongoose plugin", ->
 
       describe "when model is saved", ->
 
+        it "creates attachment from model data without file", (done) ->
+          model.avatar =
+            fileName: file.name
+            contentType: file.type
+          model.save (err) ->
+            expect(model.avatar.fileName).toEqual file.name
+            done(err)
+
         it "creates attachment from file", ->
           model.avatar = file
           expect(model.attachments.length).toEqual 1
