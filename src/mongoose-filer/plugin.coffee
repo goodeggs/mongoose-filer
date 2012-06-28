@@ -89,15 +89,17 @@ exports = module.exports = (schema, options) ->
     # Force $set for attachments to avoid https://jira.mongodb.org/browse/SERVER-1050
     @attachments = @attachments[0..-1]
 
+  # Validate attachments presence
   if options.required
     schema.pre 'validate', (next) ->
       return next() if @get(name)?
       @invalidate name, 'required'
       next()
 
+  # Remove all attached files when model is removed
   schema.pre 'remove', (next) ->
     removes = for attachment in @attachments
-      (cb) -> attachment.get('attachedFile').remove cb
+      (cb) -> attachment.attachedFile.remove cb
     async.parallel removes, next
 
 exports.Attachment = mongoose.model 'Attachment', Attachments
