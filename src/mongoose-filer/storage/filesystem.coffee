@@ -12,7 +12,7 @@ module.exports = filesystem = (Store, config) ->
   Store.prototype.delete = (style, cb) ->
       fs.unlink @filePath(style), (err) ->
         if err?.code == 'ENOENT' # Does not exist
-          console.error err
+          console.error "Filesystem: file not found for delete. Ignoring", err.path
           return cb()
         cb(err)
 

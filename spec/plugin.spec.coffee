@@ -99,47 +99,54 @@ describe "Mongoose plugin", ->
             expect(err?.errors?.contentType).toBeTruthy()
             done()
 
-      describe "#toJSON", ->
+      describe "with attached file", ->
         beforeEach (done) ->
           model.avatar = file
           model.save(done)
 
-        it "includes attachments urls in json", ->
-          json = JSON.parse JSON.stringify model.toJSON(client: true)
-          expect(json.attachments[0].original.url).toEqual model.avatar.url('original')
-          expect(json.attachments[0].thumb.url).toEqual model.avatar.url('thumb')
+        describe "when updating", ->
+          file2 =
+            name: 'hen_house.jpg'
+            path: './spec/hen_house.jpg'
+            type: 'image/jpeg'
 
-      describe "when model is removed", ->
-        beforeEach (done) ->
-          model.avatar = file
-          model.save(done)
-          spyOn(AttachedFile.prototype, 'remove').andCallback()
+          it "updates attachment", (done) ->
+            model.avatar = file2
+            model.save done
 
-        it "removes attached file", (done) ->
-          model.remove (err) ->
-            done(err) if err?
-            expect(AttachedFile.prototype.remove).toHaveBeenCalled()
-            done()
+        describe "#toJSON", ->
+          it "includes attachments urls in json", ->
+            json = JSON.parse JSON.stringify model.toJSON(client: true)
+            expect(json.attachments[0].original.url).toEqual model.avatar.url('original')
+            expect(json.attachments[0].thumb.url).toEqual model.avatar.url('thumb')
 
-      describe "Attachment#remove", ->
-        beforeEach (done) ->
-          model.avatar = file
-          model.save(done)
-          spyOn(AttachedFile.prototype, 'remove').andCallback()
+        describe "model#remove", ->
+          beforeEach ->
+            spyOn(AttachedFile.prototype, 'remove').andCallback()
 
-        it "removes attached file", (done) ->
-          model.avatar.remove()
-          model.save (err) ->
-            done(err) if err?
-            expect(AttachedFile.prototype.remove).toHaveBeenCalled()
-            done()
+          it "removes attached file", (done) ->
+            model.remove (err) ->
+              done(err) if err?
+              expect(AttachedFile.prototype.remove).toHaveBeenCalled()
+              done()
 
-        it "removes when set to null", (done) ->
-          model.avatar = null
-          model.save (err) ->
-            done(err) if err?
-            expect(AttachedFile.prototype.remove).toHaveBeenCalled()
-            done()
+        describe "Attachment#remove", ->
+          beforeEach ->
+            spyOn(AttachedFile.prototype, 'remove').andCallback()
+
+          it "removes attached file", (done) ->
+            model.avatar.remove()
+            model.save (err) ->
+              done(err) if err?
+              expect(AttachedFile.prototype.remove).toHaveBeenCalled()
+              done()
+
+          it "removes when set to null", (done) ->
+            model.avatar = null
+            model.save (err) ->
+              done(err) if err?
+              expect(AttachedFile.prototype.remove).toHaveBeenCalled()
+              done()
 
 
     describe "with another attachment", ->
