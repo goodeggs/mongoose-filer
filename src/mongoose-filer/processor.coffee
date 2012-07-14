@@ -3,6 +3,7 @@ async = require 'async'
 EventEmitter = require('events').EventEmitter
 assert = require 'assert'
 path = require 'path'
+fs = require 'fs'
 
 tmpFile = ->
   name = ""
@@ -43,6 +44,6 @@ exports = module.exports = class Processor extends EventEmitter
       cb(err) if cb?
 
 for dir in [process.env.TMPDIR, '/tmp']
-  Processor.tmpDir = dir if !Processor.tmpDir && path.existsSync(dir)
+  Processor.tmpDir = dir if !Processor.tmpDir && fs.existsSync(dir)
 
 assert.ok Processor.tmpDir, "Unable to find temp dir. Please set environment variable TMPDIR."

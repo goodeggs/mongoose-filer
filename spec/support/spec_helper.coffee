@@ -1,4 +1,4 @@
-path = require 'path'
+fs = require 'fs'
 require './before_after_all_helper'
 
 jasmine.Spy::andCallback = (err, result) ->
@@ -11,4 +11,4 @@ beforeEach ->
   @addMatchers
     exists: ->
       @message = -> "Expected #{@actual} to exist on the filesystem"
-      path.existsSync @actual
+      fs.existsSync @actual
