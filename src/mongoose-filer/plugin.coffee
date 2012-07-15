@@ -49,9 +49,7 @@ Attachments.method
 
 Attachments.pre 'save', (next) ->
   return next() unless @file?
-  @attachedFile.save (err) =>
-    @file = null
-    next(err)
+  @attachedFile.save next
 
 Attachments.pre 'remove', (next) ->
   # Remove attached file and then remove hook from save in case save is called again
