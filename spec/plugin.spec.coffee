@@ -3,8 +3,6 @@ mongoose = require 'mongoose'
 attachments = require '..'
 {AttachedFile, hasAttachment} = attachments
 
-# TODO: remove files on Attachment#remove
-
 beforeAll ->
   mongoose.connect 'mongodb://localhost/mongoose-filer_test'
 afterAll ->
@@ -34,7 +32,7 @@ describe "Mongoose plugin", ->
         file: file.path
       expect(attachment.file).toEqual file.path
 
-  describe "with image attachment", ->
+  describe "Model with image attachment", ->
     schema = null
     Model = null
 
@@ -46,7 +44,7 @@ describe "Mongoose plugin", ->
         contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
       Model = mongoose.model 'OneAttachment', schema
 
-    describe 'with model defined', ->
+    describe 'with a model instance', ->
       model = null
       beforeEach ->
         model = new Model()
@@ -64,17 +62,11 @@ describe "Mongoose plugin", ->
 
         it "removes attachment", (done) ->
           model.avatar.remove()
-          model.save(done)
-
-      describe "when model is saved", ->
-
-        it "creates attachment from model data without file", (done) ->
-          model.avatar =
-            fileName: file.name
-            contentType: file.type
           model.save (err) ->
-            expect(model.avatar.fileName).toEqual file.name
+            expect(model.avatar).toBeFalsy()
             done(err)
+
+      describe "with attachment as file", ->
 
         it "creates attachment from file", ->
           model.avatar = file
@@ -101,7 +93,7 @@ describe "Mongoose plugin", ->
             expect(err?.errors?.contentType).toBeTruthy()
             done()
 
-      describe "with attached file", ->
+      describe "with saved attached file", ->
         beforeEach (done) ->
           model.avatar = file
           model.save(done)
