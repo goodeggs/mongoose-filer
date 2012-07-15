@@ -87,7 +87,9 @@ describe "Mongoose plugin", ->
 
         it "validates content type and passes", (done) ->
           model.avatar = file
-          model.save done
+          model.save (err) ->
+            expect(AttachedFile.prototype.save).toHaveBeenCalled()
+            done(err)
 
         it "validates content type and fails", (done) ->
           model.avatar =
@@ -145,6 +147,21 @@ describe "Mongoose plugin", ->
               expect(AttachedFile.prototype.remove).toHaveBeenCalled()
               done(err)
 
+      # file value provided in new Model() and Model.create do not call virtual setting ;-(
+      # This spec is here to catch when this behavior changes.
+      describe 'with file passed to initializer', ->
+
+        it "Model#save does not save attachment", (done) ->
+          model = new Model avatar: file
+          model.save (err) ->
+            expect(AttachedFile.prototype.save).not.toHaveBeenCalled()
+            done(err)
+
+        it "Model.create does not save attachment", (done) ->
+          model = new Model avatar: file
+          Model.create avatar: file, (err) ->
+            expect(AttachedFile.prototype.save).not.toHaveBeenCalled()
+            done(err)
 
     describe "with another attachment", ->
       beforeEach ->
@@ -220,10 +237,18 @@ describe "Mongoose plugin", ->
         children: [ childSchema ]
       Parent = mongoose.model 'Parent', parentSchema
 
-    it "saves attachment on child", (done) ->
+    it "saves attachment on parent create", (done) ->
       child = new Child()
       child.avatar = file
       Parent.create children: [ child ], (err, parent) ->
+        expect(AttachedFile.prototype.save).toHaveBeenCalled()
+        done(err)
+
+    it "saves attachment on parent save", (done) ->
+      child = new Child()
+      parent = new Parent children: [ new Child() ]
+      parent.children[0].avatar = file
+      parent.save (err) ->
         expect(AttachedFile.prototype.save).toHaveBeenCalled()
         done(err)
 
