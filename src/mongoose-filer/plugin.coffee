@@ -88,7 +88,7 @@ exports = module.exports = (schema, options) ->
   schema.virtual(name).set (value) ->
     if options.collection
       throw new Error("Attachment value must be an array when collection=true. Add attachments with model.addAttachment(name, value).") unless value.forEach?
-      att.remove for att in @get(name)
+      att.remove() for att in @get(name)
       @addAttachment(name, v) for v in value
     else
       (existing = @get(name)) and existing.remove()
