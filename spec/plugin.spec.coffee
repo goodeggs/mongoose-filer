@@ -126,9 +126,8 @@ describe "Mongoose plugin", ->
 
           it "removes attached file", (done) ->
             model.remove (err) ->
-              done(err) if err?
               expect(AttachedFile.prototype.remove).toHaveBeenCalled()
-              done()
+              done(err)
 
         describe "Attachment#remove", ->
           beforeEach ->
@@ -137,16 +136,14 @@ describe "Mongoose plugin", ->
           it "removes attached file", (done) ->
             model.avatar.remove()
             model.save (err) ->
-              done(err) if err?
               expect(AttachedFile.prototype.remove).toHaveBeenCalled()
-              done()
+              done(err)
 
           it "removes when set to null", (done) ->
             model.avatar = null
             model.save (err) ->
-              done(err) if err?
               expect(AttachedFile.prototype.remove).toHaveBeenCalled()
-              done()
+              done(err)
 
 
     describe "with another attachment", ->
@@ -184,11 +181,8 @@ describe "Mongoose plugin", ->
           contentType: 'application/octet-stream'
 
         model.save (err) ->
-          expect(err).toBeFalsy()
           expect(AttachedFile.prototype.save.callCount).toEqual 2
-          model.save (err) ->
-            expect(AttachedFile.prototype.save.callCount).toEqual 2
-            done()
+          done(err)
 
   describe "with required attachment", ->
     schema = null
@@ -210,6 +204,30 @@ describe "Mongoose plugin", ->
         expect(err.errors.name).toBeTruthy()
         expect(err.errors.avatar).toBeTruthy()
         done()
+
+  describe "with attachment on embedded document", ->
+    Parent = null
+    Child = null
+
+    beforeEach ->
+      childSchema = new mongoose.Schema
+      childSchema.plugin hasAttachment,
+        name: 'avatar'
+        styles: { thumb: '100x100^' }
+        contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
+      Child = mongoose.model 'Child', childSchema
+      parentSchema = new mongoose.Schema
+        children: [ childSchema ]
+      Parent = mongoose.model 'Parent', parentSchema
+
+    it "saves attachment on child", (done) ->
+      child = new Child()
+      child.avatar = file
+      Parent.create children: [ child ], (err, parent) ->
+        expect(AttachedFile.prototype.save).toHaveBeenCalled()
+        done(err)
+
+
 
 
 
