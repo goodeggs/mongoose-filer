@@ -68,23 +68,31 @@ exports = module.exports = (schema, options) ->
 
   if !schema.path 'attachments'
     schema.add 'attachments': [ Attachments ]
+    schema.method addAttachment: (name, value) ->
+      if value.path? # It's a file
+        @attachments.push
+          name: name
+          fileName: value.name
+          contentType: value.type
+          file: value.path
+      else
+        value.name = name
+        @attachments.push value
+
 
   schema.virtual(name).get ->
+    if options.collection
+      return (att for att in @attachments when att.name == name )
     _(@attachments).find (a) -> a.name == name
 
   schema.virtual(name).set (value) ->
-    (existing = @get(name)) and existing.remove()
-    return unless value? # Setting to null removes attachment
-
-    if value.path? # It's a file
-      @attachments.push
-        name: name
-        fileName: value.name
-        contentType: value.type
-        file: value.path
+    if options.collection
+      throw new Error("Attachment value must be an array when collection=true. Add attachments with model.addAttachment(name, value).") unless value.forEach?
+      att.remove for att in @get(name)
+      @addAttachment(name, v) for v in value
     else
-      value.name = name
-      @attachments.push value
+      (existing = @get(name)) and existing.remove()
+      @addAttachment name, value if value? # Setting to null removes attachment
 
     # Force $set for attachments to avoid https://jira.mongodb.org/browse/SERVER-1050
     @attachments = @attachments[0..-1]
@@ -92,7 +100,8 @@ exports = module.exports = (schema, options) ->
   # Validate attachments presence
   if options.required
     schema.pre 'validate', (next) ->
-      return next() if @get(name)?
+      value = @get(name)
+      return next() if options.collection and value.length > 0 or value?
       @invalidate name, 'required'
       next()
 

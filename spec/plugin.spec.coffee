@@ -244,6 +244,33 @@ describe "Mongoose plugin", ->
         expect(AttachedFile.prototype.save).toHaveBeenCalled()
         done(err)
 
+  describe "with attachment attribute option collection=true", ->
+    schema = null
+    Model = null
+    file2 =
+      name: "hen_house.jpg"
+      path: "./spec/hen_house.jpg"
+      type: 'image/png'
+
+    beforeEach ->
+      schema = new mongoose.Schema
+      schema.plugin hasAttachment,
+        name: 'avatars'
+        styles: { thumb: '100x100^' }
+        contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
+        collection: true
+      Model = mongoose.model 'AttachmentCollection', schema
+
+    it "has multiple attachments", (done) ->
+      model = new Model()
+      model.avatars = [file, file2]
+      model.save (err) ->
+        expect(AttachedFile.prototype.save.callCount).toEqual 2
+        expect(model.avatars[0].fileName).toEqual(file.name)
+        expect(model.avatars[1].fileName).toEqual(file2.name)
+        done(err)
+
+
 
 
 
