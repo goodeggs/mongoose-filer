@@ -237,12 +237,26 @@ describe "Mongoose plugin", ->
         done(err)
 
     it "saves attachment on parent save", (done) ->
-      child = new Child()
       parent = new Parent children: [ new Child() ]
       parent.children[0].avatar = file
       parent.save (err) ->
         expect(AttachedFile.prototype.save).toHaveBeenCalled()
         done(err)
+
+    describe "with existing model", ->
+      parent = null
+      beforeEach (done) ->
+        parent = new Parent children: [ new Child() ]
+        parent.save done
+
+      it "updates attachment", (done) ->
+        parent.children[0].avatar =
+          name: "clark_summitX.jpg"
+          path: "./spec/clark_summit.jpg"
+          type: 'image/jpeg'
+        parent.save (err) ->
+          expect(AttachedFile.prototype.save).toHaveBeenCalled()
+          done(err)
 
   describe "with attachment attribute option collection=true", ->
     schema = null

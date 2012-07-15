@@ -96,6 +96,7 @@ exports = module.exports = (schema, options) ->
 
     # Force $set for attachments to avoid https://jira.mongodb.org/browse/SERVER-1050
     @attachments = @attachments[0..-1]
+    @markModified('attachments')
 
   # Validate attachments presence
   if options.required
