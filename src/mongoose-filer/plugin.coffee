@@ -21,7 +21,7 @@ Attachments.virtual('config').get ->
 
 Attachments.virtual('attachedFile').get ->
   @_attachedFile ?=  new AttachedFile @parent.id,
-    modelName: @parent.constructor.modelName
+    modelName: @config.modelName or @parent.constructor.modelName
     attributeName: @name
     fileName: @fileName
     styles: @config.styles

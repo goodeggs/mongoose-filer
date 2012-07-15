@@ -222,6 +222,7 @@ describe "Mongoose plugin", ->
       childSchema = new mongoose.Schema
       childSchema.plugin hasAttachment,
         name: 'avatar'
+        modelName: 'Child'
         styles: { thumb: '100x100^' }
         contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
       Child = mongoose.model 'Child', childSchema
@@ -250,13 +251,17 @@ describe "Mongoose plugin", ->
         parent.save done
 
       it "updates attachment", (done) ->
-        parent.children[0].avatar =
-          name: "clark_summitX.jpg"
-          path: "./spec/clark_summit.jpg"
-          type: 'image/jpeg'
+        parent.children[0].avatar = file
         parent.save (err) ->
           expect(AttachedFile.prototype.save).toHaveBeenCalled()
           done(err)
+
+      it "updates reloaded model", (done) ->
+        Parent.findById parent, (err, reloaded) ->
+          reloaded.children[0].avatar = file
+          reloaded.save (err) ->
+            expect(AttachedFile.prototype.save).toHaveBeenCalled()
+            done(err)
 
   describe "with attachment attribute option collection=true", ->
     schema = null
