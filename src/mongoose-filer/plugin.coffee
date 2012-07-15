@@ -49,7 +49,7 @@ Attachments.method
 
 Attachments.pre 'save', (next) ->
   return next() unless @file?
-  @attachedFile.save (err) ->
+  @attachedFile.save (err) =>
     @file = null
     next(err)
 
