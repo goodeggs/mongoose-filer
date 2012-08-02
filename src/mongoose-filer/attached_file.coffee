@@ -14,6 +14,7 @@ exports = module.exports = class AttachedFile
       @attributeName = inflect.underscore @options.attributeName
       @styles = @options.styles or []
       @store = new Storage(@)
+      @s3Headers = @options.s3Headers or {}
       @file = @options.file
       if @file
         @fileName = @file.name
