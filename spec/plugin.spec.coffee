@@ -42,6 +42,7 @@ describe "Mongoose plugin", ->
         name: 'avatar'
         styles: { thumb: '100x100^' }
         contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
+        s3Headers: { 'Cache-Control': 'max-age=3600' }
       Model = mongoose.model 'OneAttachment', schema
 
     describe 'with a model instance', ->
@@ -59,6 +60,9 @@ describe "Mongoose plugin", ->
         it "has saved attachment", ->
           expect(model.avatar.fileName).toEqual file.name
           expect(model.avatar.url('thumb')).toBeTruthy()
+
+        it "propagates s3Headers config", ->
+          expect(model.avatar.attachedFile.s3Headers['Cache-Control']).toEqual 'max-age=3600'
 
         it "removes attachment", (done) ->
           model.avatar.remove()

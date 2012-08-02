@@ -25,6 +25,7 @@ Attachments.virtual('attachedFile').get ->
     attributeName: @name
     fileName: @fileName
     styles: @config.styles
+    s3Headers: @config.s3Headers
     file:
       name: @fileName
       type: @contentType
