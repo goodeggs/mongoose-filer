@@ -17,11 +17,11 @@ Attachments.virtual('file')
     @_file = value
 
 Attachments.virtual('config').get ->
-  @parent.schema.attachmentsConfig[@name]
+  @__parent.schema.attachmentsConfig[@name]
 
 Attachments.virtual('attachedFile').get ->
-  @_attachedFile ?=  new AttachedFile @parent.id,
-    modelName: @config.modelName or @parent.constructor.modelName
+  @_attachedFile ?=  new AttachedFile @__parent.id,
+    modelName: @config.modelName or @__parent.constructor.modelName
     attributeName: @name
     fileName: @fileName
     styles: @config.styles
@@ -56,9 +56,9 @@ Attachments.pre 'remove', (next) ->
   # Remove attached file and then remove hook from save in case save is called again
   removeFn = (cb) =>
     @attachedFile.remove cb
-    @parent.removePre 'save', removeFn
+    @__parent.removePre 'save', removeFn
 
-  @parent.pre 'save', removeFn
+  @__parent.pre 'save', removeFn
   next()
 
 exports = module.exports = (schema, options) ->

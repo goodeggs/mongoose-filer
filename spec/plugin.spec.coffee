@@ -94,7 +94,8 @@ describe "Mongoose plugin", ->
             type: 'application/octet-stream'
 
           model.save (err) ->
-            expect(err?.errors?.contentType).toBeTruthy()
+            # TODO: error should be at avatar.contentType
+            expect(err?.errors?['attachments.0.contentType']).toBeTruthy()
             done()
 
       describe "with saved attached file", ->
