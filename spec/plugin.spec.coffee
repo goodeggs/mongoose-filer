@@ -96,6 +96,7 @@ describe "Mongoose plugin", ->
           model.save (err) ->
             # TODO: error should be at avatar.contentType
             expect(err?.errors?['attachments.0.contentType']).toBeTruthy()
+            expect(AttachedFile.prototype.save).not.toHaveBeenCalled()
             done()
 
       describe "with saved attached file", ->
@@ -155,7 +156,6 @@ describe "Mongoose plugin", ->
             done(err)
 
         it "Model.create does not save attachment", (done) ->
-          model = new Model avatar: file
           Model.create avatar: file, (err) ->
             expect(AttachedFile.prototype.save).not.toHaveBeenCalled()
             done(err)
@@ -293,14 +293,4 @@ describe "Mongoose plugin", ->
         expect(model.avatars[0].fileName).toEqual(file.name)
         expect(model.avatars[1].fileName).toEqual(file2.name)
         done(err)
-
-
-
-
-
-
-
-
-
-
 
