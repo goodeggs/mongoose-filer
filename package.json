@@ -1,6 +1,6 @@
 {
     "name"            : "mongoose-filer"
-  , "version"         : "0.0.6"
+  , "version"         : "0.0.7"
   , "description"     : "Upload, resize and crop images, upload to S3 and and attach them to Mongoose models with this easy to use plugin for Mongoose."
   , "homepage"        : "http://github.com/goodeggs/mongoose-filer"
   , "repository"      : {
@@ -21,7 +21,7 @@
   , "devDependencies" : {
       "jasmine-node" : "git://github.com/asalant/jasmine-node.git#master"
     , "coffee-script" : "1.3.x"
-    , "mongoose": "2.7.x"
+    , "mongoose": "3.x"
   }
   , "main" : "lib/mongoose-filer"
   , "engine" : {
