@@ -79,7 +79,7 @@ describe "Mongoose plugin", ->
           expect(model.avatar.fileName).toEqual file.name
           expect(model.avatar.contentType).toEqual file.type
           expect(model.avatar.file).toEqual file.path
-          expect(model.avatar.url('thumb')).toEqual "http://localhost:3000/one_attachment/avatar/#{model.id}/thumb/clark_summit.jpg"
+          expect(model.avatar.url('thumb')).toEqual "http://localhost:3000/one_attachment/#{model.id}/avatar/#{model.avatar.id}_thumb.jpg"
 
         it "validates content type and passes", (done) ->
           model.avatar = file

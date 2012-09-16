@@ -9,8 +9,8 @@ exports = module.exports = class Storage
     @pendingDeletes = []
 
   path: (style) ->
-    att = @attachedFile.pathAttributes
-    path.join '/', att.modelName, att.attributeName, att.id, style, att.fileName
+    att = @attachedFile
+    path.join '/', att.modelName, att.modelId, att.attributeName, "#{att.id}_#{style}#{att.extension}"
 
   url: (style) ->
     "#{Storage.baseUrl}#{@path(style)}"
