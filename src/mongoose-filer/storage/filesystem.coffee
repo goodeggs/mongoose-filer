@@ -17,4 +17,4 @@ module.exports = filesystem = (Store, config) ->
         cb(err)
 
   Store.prototype.filePath = (style) ->
-    path.join config.dir, @path(style, @attachedFile.pathAttributes)
+    path.join config.dir, @path(style)

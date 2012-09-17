@@ -1,4 +1,5 @@
 inflect = require "inflect"
+path = require "path"
 Processor = require "./processor"
 Storage = require "./storage"
 
@@ -9,21 +10,17 @@ extensions =
 
 exports = module.exports = class AttachedFile
 
-    constructor: (@id, @options={}) ->
-      @modelName = inflect.underscore @options.modelName
-      @attributeName = inflect.underscore @options.attributeName
-      @styles = @options.styles or []
+    constructor: (@id, options={}) ->
+      @modelName = inflect.underscore options.modelName
+      @modelId = options.modelId
+      @attributeName = inflect.underscore options.attributeName
+      @styles = options.styles or []
       @store = new Storage(@)
-      @s3Headers = @options.s3Headers or {}
-      @file = @options.file
+      @s3Headers = options.s3Headers or {}
+      @file = options.file
       if @file
         @fileName = @file.name
-        @fileName?.replace(/(\..*?)$/,  extensions[@file.type]) if extensions[@file.type]
-      @pathAttributes =
-        id: @id
-        modelName: @modelName
-        attributeName: @attributeName
-        fileName: @fileName
+        @extension = extensions[@file.type] or path.extname(@fileName)
 
     save: (cb) ->
       @store.pendingWrites.push style: 'original', file: @file.path

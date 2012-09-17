@@ -32,10 +32,12 @@ describe "attachments", ->
       attachment = null
 
       beforeEach ->
-        attachment = new AttachedFile '123', file: file, modelName: "Post", attributeName: 'photo', styles: styles
+        attachment = new AttachedFile '123', file: file, modelName: "Post", modelId: '456', attributeName: 'photo', styles: styles
 
       it "has urls for styles", ->
-        expect(attachment.url 'thumb').toEqual "http://localhost:3000/uploads/post/photo/123/thumb/clark_summit.jpg"
+        expect(attachment.url 'thumb').toEqual "http://localhost:3000/uploads/post/456/photo/123_thumb.jpg"
+
+
 
       it "writes to and removes from filesystem paths", (done) ->
         attachment.save (err) ->
