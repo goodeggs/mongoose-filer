@@ -68,7 +68,7 @@ exports = module.exports = (schema, options) ->
   schema.attachmentsConfig ||= {}
   schema.attachmentsConfig[name] = options
 
-  if !schema.path 'attachments'
+  unless schema.path 'attachments'
     schema.add 'attachments': [ Attachments ]
     schema.method addAttachment: (name, value) ->
       if value.path? # It's a file
@@ -81,6 +81,11 @@ exports = module.exports = (schema, options) ->
         value.name = name
         @attachments.push value
 
+    # Remove all attached files when model is removed
+    schema.pre 'remove', (next) ->
+      removes = @attachments.map (attachment) ->
+        (cb) -> attachment.attachedFile.remove cb
+      async.parallel removes, next
 
   schema.virtual(name).get ->
     if options.collection
@@ -107,11 +112,5 @@ exports = module.exports = (schema, options) ->
       return next() if options.collection and value.length > 0 or value?
       @invalidate name, 'required'
       next()
-
-  # Remove all attached files when model is removed
-  schema.pre 'remove', (next) ->
-    removes = for attachment in @attachments
-      (cb) -> attachment.attachedFile.remove cb
-    async.parallel removes, next
 
 exports.Attachment = mongoose.model 'Attachment', Attachments

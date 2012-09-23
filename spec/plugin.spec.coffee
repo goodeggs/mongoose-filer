@@ -174,29 +174,34 @@ describe "Mongoose plugin", ->
           contentType: 'application/octet-stream'
         model.save done
 
-      it "has multiple attachments", ->
-        model = new Model()
-        model.avatar = file
-        model.anything =
-          name: file.name
-          path: file.path
-          contentType: 'application/octet-stream'
-        expect(model.attachments.length).toEqual(2)
+      describe "with two unsaved attached files", ->
+        model = null
 
-        model.avatar = file
-        expect(model.attachments.length).toEqual(2)
+        beforeEach ->
+          model = new Model()
+          model.avatar = file
+          model.anything =
+            name: file.name
+            path: file.path
+            contentType: 'application/octet-stream'
 
-      it "saves two new attachments", (done) ->
-        model = new Model()
-        model.avatar = file
-        model.anything =
-          name: file.name
-          path: file.path
-          contentType: 'application/octet-stream'
+        it "has multiple attachments", ->
+          expect(model.attachments.length).toEqual(2)
+          model.avatar = file
+          expect(model.attachments.length).toEqual(2)
 
-        model.save (err) ->
-          expect(AttachedFile.prototype.save.callCount).toEqual 2
-          done(err)
+        it "saves two new attachments", (done) ->
+          model.save (err) ->
+            expect(AttachedFile.prototype.save.callCount).toEqual 2
+            done(err)
+
+        it "model#remove removes both attached files exactly once", (done) ->
+          spyOn(model.avatar.attachedFile, 'remove').andCallback()
+          spyOn(model.anything.attachedFile, 'remove').andCallback()
+          model.remove (err) ->
+            expect(model.anything.attachedFile.remove.callCount).toEqual 1
+            expect(model.avatar.attachedFile.remove.callCount).toEqual 1
+            done(err)
 
   describe "with required attachment", ->
     schema = null
