@@ -52,7 +52,6 @@ Attachments.method
 Attachments.pre 'save', (next) ->
   return next() unless @file?
   @attachedFile.save (err) =>
-    console.log 'saved Attachment', {err}, @file
     unless err?
       @file = null
     next(err)
