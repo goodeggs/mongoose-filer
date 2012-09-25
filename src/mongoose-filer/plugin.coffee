@@ -51,7 +51,11 @@ Attachments.method
 
 Attachments.pre 'save', (next) ->
   return next() unless @file?
-  @attachedFile.save next
+  @attachedFile.save (err) =>
+    console.log 'saved Attachment', {err}, @file
+    unless err?
+      @file = null
+    next(err)
 
 Attachments.pre 'remove', (next) ->
   # Remove attached file and then remove hook from save in case save is called again

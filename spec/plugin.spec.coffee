@@ -104,6 +104,9 @@ describe "Mongoose plugin", ->
           model.avatar = file
           model.save(done)
 
+        it 'clears local file path to prevent duplicate uploads', ->
+          expect(model.avatar.file).toBeNull()
+
         describe "when updating", ->
           file2 =
             name: 'hen_house.jpg'
