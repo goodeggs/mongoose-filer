@@ -71,7 +71,7 @@ describe "attachments", ->
       describe "save", ->
         putFile = null
         beforeEach ->
-          putFile = spyOn(KnoxClient.prototype, 'putFile').andCallback()
+          putFile = spyOn(KnoxClient.prototype, 'putFile').andCallback(null, {statusCode: 204})
 
         it "writes to s3", (done) ->
           attachment.save (err) ->
@@ -83,7 +83,7 @@ describe "attachments", ->
       describe "remove", ->
         deleteFile = null
         beforeEach ->
-          deleteFile = spyOn(KnoxClient.prototype, 'deleteFile').andCallback()
+          deleteFile = spyOn(KnoxClient.prototype, 'deleteFile').andCallback(null, {statusCode: 204})
 
         it "writes to s3", (done) ->
           attachment.remove (err) ->

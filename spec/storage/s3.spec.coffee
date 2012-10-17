@@ -7,8 +7,8 @@ describe 's3', ->
 
   beforeEach ->
     knoxClient = jasmine.createSpyObj('knoxClient', ['putFile', 'deleteFile'])
-    knoxClient.putFile.andCallback()
-    knoxClient.deleteFile.andCallback()
+    knoxClient.putFile.andCallback(null, {statusCode: 200})
+    knoxClient.deleteFile.andCallback(null, {statusCode: 204})
     spyOn(knox, 'createClient').andReturn(knoxClient)
     TestStorage = (->)
     TestStorage::path = (style) -> "/#{style}.ext"
@@ -30,36 +30,71 @@ describe 's3', ->
     expect(TestStorage::write).toBeDefined()
     expect(TestStorage::delete).toBeDefined()
 
-  it '#write', (next) ->
-    withStorage TestStorage,
-      s3Headers:
-        'Cache-Control': 'max-age: 3600, public'
-        'X-Foo': 'default'
-    store = new TestStorage()
-    store.attachedFile =
-      s3Headers:
-        'X-Foo': 'file'
-      file:
-        type: 'image/png'
+  describe '#write', ->
 
-    store.write 'original', '/path/to/file.png', ->
-      expect(knoxClient.putFile).toHaveBeenCalled()
-      args = knoxClient.putFile.mostRecentCall.args
-      expect(args[0]).toEqual '/path/to/file.png'
-      expect(args[1]).toEqual '/original.ext'
-      headers = args[2]
-      expect(headers['Cache-Control']).toEqual 'max-age: 3600, public'
-      expect(headers['X-Foo']).toEqual 'file'
-      expect(headers['Content-Type']).toEqual 'image/png'
-      next()
+    it 'works', (next) ->
+      withStorage TestStorage,
+        s3Headers:
+          'Cache-Control': 'max-age: 3600, public'
+          'X-Foo': 'default'
+      store = new TestStorage()
+      store.attachedFile =
+        s3Headers:
+          'X-Foo': 'file'
+        file:
+          type: 'image/png'
 
-  it '#delete', (next) ->
-    withStorage TestStorage, {}
-    store = new TestStorage()
+      store.write 'original', '/path/to/file.png', ->
+        expect(knoxClient.putFile).toHaveBeenCalled()
+        args = knoxClient.putFile.mostRecentCall.args
+        expect(args[0]).toEqual '/path/to/file.png'
+        expect(args[1]).toEqual '/original.ext'
+        headers = args[2]
+        expect(headers['Cache-Control']).toEqual 'max-age: 3600, public'
+        expect(headers['X-Foo']).toEqual 'file'
+        expect(headers['Content-Type']).toEqual 'image/png'
+        next()
 
-    store.delete 'original', ->
-      expect(knoxClient.deleteFile).toHaveBeenCalled()
-      args = knoxClient.deleteFile.mostRecentCall.args
-      expect(args[0]).toEqual '/original.ext'
-      next()
+    it 'returns an error for a non successful response code', (next) ->
+      withStorage TestStorage,
+        s3Headers:
+          'Cache-Control': 'max-age: 3600, public'
+          'X-Foo': 'default'
+      store = new TestStorage()
+      store.attachedFile =
+        s3Headers:
+          'X-Foo': 'file'
+        file:
+          type: 'image/png'
+
+      knoxClient.putFile.andCallback(null, {statusCode: 403})
+
+      store.write 'original', '/path/to/file.png', (err) ->
+        expect(knoxClient.putFile).toHaveBeenCalled()
+        expect(err.message).toMatch '403'
+        next()
+
+
+  describe '#delete', ->
+
+    it 'works', (next) ->
+      withStorage TestStorage, {}
+      store = new TestStorage()
+
+      store.delete 'original', ->
+        expect(knoxClient.deleteFile).toHaveBeenCalled()
+        args = knoxClient.deleteFile.mostRecentCall.args
+        expect(args[0]).toEqual '/original.ext'
+        next()
+
+    it 'fails for a non 204 response', (next) ->
+      withStorage TestStorage, {}
+      store = new TestStorage()
+
+      knoxClient.deleteFile.andCallback(null, {statusCode: 403})
+
+      store.delete 'original', (err) ->
+        expect(knoxClient.deleteFile).toHaveBeenCalled()
+        expect(err.message).toMatch '403'
+        next()
 
