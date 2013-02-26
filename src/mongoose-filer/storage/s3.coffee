@@ -14,6 +14,7 @@ module.exports = s3 = (Store, config) ->
     path = @path(style)
     console.log "S3: writing #{path}"
     client.putFile file, @path(style), _(defaultHeaders).extend(@attachedFile.s3Headers, 'Content-Type': @attachedFile.file.type), (err, res) ->
+      return cb(err) if err and !res?
       if res.statusCode isnt 200
         err ?= new Error "#{res.statusCode} Error from S3 put"
       return cb(err, res)
@@ -23,6 +24,7 @@ module.exports = s3 = (Store, config) ->
     path = @path(style)
     console.log "S3: deleting #{path}"
     client.deleteFile @path(style), (err, res) ->
+      return cb(err) if err and !res?
       if res.statusCode isnt 204
         err ?= new Error "#{res.statusCode} Error from S3 delete"
       return cb(err, res)
