@@ -8,6 +8,12 @@ beforeAll ->
 afterAll ->
   mongoose.disconnect()
 
+getOrDefineModel = (name, schema) ->
+  try
+    return mongoose.model(name)
+  catch e
+    mongoose.model name, schema
+
 describe "Mongoose plugin", ->
   file =
     name: "clark_summit.jpg"
@@ -43,7 +49,7 @@ describe "Mongoose plugin", ->
         styles: { thumb: '100x100^' }
         contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
         s3Headers: { 'Cache-Control': 'max-age=3600' }
-      Model = mongoose.model 'OneAttachment', schema
+      Model = getOrDefineModel 'OneAttachment', schema
 
     describe 'with a model instance', ->
       model = null
@@ -148,26 +154,25 @@ describe "Mongoose plugin", ->
               expect(AttachedFile.prototype.remove).toHaveBeenCalled()
               done(err)
 
-      # file value provided in new Model() and Model.create do not call virtual setting ;-(
-      # This spec is here to catch when this behavior changes.
+      # Mongoose 3.3.x and earlier, this behavior was not supported
       describe 'with file passed to initializer', ->
 
-        it "Model#save does not save attachment", (done) ->
+        it "Model#save saves attachment", (done) ->
           model = new Model avatar: file
           model.save (err) ->
-            expect(AttachedFile.prototype.save).not.toHaveBeenCalled()
+            expect(AttachedFile.prototype.save).toHaveBeenCalled()
             done(err)
 
-        it "Model.create does not save attachment", (done) ->
+        it "Model.create saves attachment", (done) ->
           Model.create avatar: file, (err) ->
-            expect(AttachedFile.prototype.save).not.toHaveBeenCalled()
+            expect(AttachedFile.prototype.save).toHaveBeenCalled()
             done(err)
 
     describe "with another attachment", ->
       beforeEach ->
         schema.plugin hasAttachment,
           name: 'anything'
-        Model = mongoose.model 'TwoAttachment', schema
+        Model = getOrDefineModel 'TwoAttachment', schema
 
       it "does not validate content type", (done) ->
         model = new Model()
@@ -218,7 +223,7 @@ describe "Mongoose plugin", ->
         styles: { thumb: '100x100^' }
         contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
         required: true
-      Model = mongoose.model 'RequiredAttachment', schema
+      Model = getOrDefineModel 'RequiredAttachment', schema
 
     it "validates required", (done) ->
       Model.create {}, (err) ->
@@ -238,10 +243,10 @@ describe "Mongoose plugin", ->
         modelName: 'Child'
         styles: { thumb: '100x100^' }
         contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
-      Child = mongoose.model 'Child', childSchema
+      Child = getOrDefineModel 'Child', childSchema
       parentSchema = new mongoose.Schema
         children: [ childSchema ]
-      Parent = mongoose.model 'Parent', parentSchema
+      Parent = getOrDefineModel 'Parent', parentSchema
 
     it "saves attachment on parent create", (done) ->
       child = new Child()
@@ -291,7 +296,7 @@ describe "Mongoose plugin", ->
         styles: { thumb: '100x100^' }
         contentType: [ 'image/jpeg', 'image/png', 'image/gif' ]
         collection: true
-      Model = mongoose.model 'AttachmentCollection', schema
+      Model = getOrDefineModel 'AttachmentCollection', schema
 
     it "has multiple attachments", (done) ->
       model = new Model()
