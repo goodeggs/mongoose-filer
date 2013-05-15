@@ -48,7 +48,7 @@ exports = module.exports = class Storage
     throw "Storage adapter not loaded"
 
 
-exports.baseUrl = "http://locahost:3000/images"
+exports.baseUrl = "http://localhost:3000/images"
 
 exports.configure = (config) ->
   Storage.baseUrl = config.baseUrl if config.baseUrl?
