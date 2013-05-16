@@ -3,11 +3,18 @@ path = require 'path'
 
 module.exports = filesystem = (Store, config) ->
 
+  copyFile = (srcFile, destFile, cb) ->
+    nodeFs = require("fs")
+    fdr = nodeFs.createReadStream(srcFile)
+    fdw = nodeFs.createWriteStream(destFile)
+    fdr.on "end", -> cb null
+    fdr.pipe fdw
+
   Store.prototype.write = (style, file, cb) ->
     destFile = @filePath style
-    fs.mkdir path.dirname(destFile), (err) ->
+    fs.mkdirs path.dirname(destFile), (err) ->
       return cb(err) if err?
-      fs.copy file, destFile, cb
+      copyFile file, destFile, cb
 
   Store.prototype.delete = (style, cb) ->
       fs.unlink @filePath(style), (err) ->
