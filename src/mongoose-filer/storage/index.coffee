@@ -26,7 +26,6 @@ exports = module.exports = class Storage
       store.pendingWrites = []
       cb()
 
-
   flushDeletes: (cb) ->
     store = @
     deletes = for { style } in store.pendingDeletes
