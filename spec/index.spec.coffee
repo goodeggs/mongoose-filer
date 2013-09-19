@@ -1,23 +1,21 @@
 require './support/spec_helper'
-attachments = require '..'
-{ AttachedFile, Processor } = attachments
+{AttachedFile, Processor} = attachments = require '../src/mongoose-filer'
 
 fs = require 'fs'
 path = require 'path'
 KnoxClient = require 'knox'
 
+file =
+  name: "clark_summit.jpg"
+  path: "./spec/clark_summit.jpg"
+  type: 'image/jpeg'
+styles =
+  thumb: '100x100^'
+  croppable: '600x600>'
+  big: '1000x1000>'
+
 describe "attachments", ->
-  file =
-    name: "clark_summit.jpg"
-    path: "./spec/clark_summit.jpg"
-    type: 'image/jpeg'
-  styles =
-    thumb: '100x100^'
-    croppable: '600x600>'
-    big: '1000x1000>'
-
   describe "when configured for dir storage", ->
-
     beforeEach ->
       attachments.configure
         baseUrl: 'http://localhost:3000/uploads'
@@ -26,18 +24,16 @@ describe "attachments", ->
             dir: "./tmp"
 
     it "bootstraps storage", ->
-      expect(require('../lib/mongoose-filer/storage').prototype.filePath).toBeTruthy()
+      expect(require('../src/mongoose-filer/storage')::filePath).toBeTruthy()
 
     describe "AttachedFile", ->
-      attachment = null
+      {attachment} = {}
 
       beforeEach ->
         attachment = new AttachedFile '123', file: file, modelName: "Post", modelId: '456', attributeName: 'photo', styles: styles
 
       it "has urls for styles", ->
         expect(attachment.url 'thumb').toEqual "http://localhost:3000/uploads/post/456/photo/123_thumb.jpg"
-
-
 
       it "writes to and removes from filesystem paths", (done) ->
         attachment.save (err) ->
@@ -53,7 +49,6 @@ describe "attachments", ->
             done()
 
   describe "when configured for s3 storage", ->
-
     beforeEach ->
       attachments.configure
         storage:
@@ -63,7 +58,7 @@ describe "attachments", ->
             bucket: "mongoose_attachments_test"
 
     describe "AttachedFile", ->
-      attachment = null
+      {attachment} = {}
 
       beforeEach ->
         attachment = new AttachedFile '123', file: file, modelName: "Post", attributeName: 'photo', styles: styles
@@ -81,7 +76,8 @@ describe "attachments", ->
             done()
 
       describe "remove", ->
-        deleteFile = null
+        {deleteFile} = {}
+
         beforeEach ->
           deleteFile = spyOn(KnoxClient.prototype, 'deleteFile').andCallback(null, {statusCode: 204})
 

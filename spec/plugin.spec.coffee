@@ -1,7 +1,6 @@
 require './support/spec_helper'
 mongoose = require 'mongoose'
-attachments = require '..'
-{AttachedFile, hasAttachment} = attachments
+{AttachedFile, Processor, hasAttachment} = attachments = require '../src/mongoose-filer'
 
 beforeAll ->
   mongoose.connect 'mongodb://localhost/mongoose-filer_test'
@@ -14,11 +13,12 @@ getOrDefineModel = (name, schema) ->
   catch e
     mongoose.model name, schema
 
+file =
+  name: "clark_summit.jpg"
+  path: "./spec/clark_summit.jpg"
+  type: 'image/jpeg'
+
 describe "Mongoose plugin", ->
-  file =
-    name: "clark_summit.jpg"
-    path: "./spec/clark_summit.jpg"
-    type: 'image/jpeg'
 
   beforeEach ->
     attachments.configure
@@ -29,7 +29,6 @@ describe "Mongoose plugin", ->
     spyOn(AttachedFile.prototype, 'save').andCallback()
 
   describe "Attachment model", ->
-
     it "has non-persistant file path", ->
       attachment = new hasAttachment.Attachment
         name: 'avatar'
@@ -39,8 +38,7 @@ describe "Mongoose plugin", ->
       expect(attachment.file).toEqual file.path
 
   describe "Model with image attachment", ->
-    schema = null
-    Model = null
+    {schema, Model} = {}
 
     beforeEach ->
       schema = new mongoose.Schema
@@ -52,7 +50,8 @@ describe "Mongoose plugin", ->
       Model = getOrDefineModel 'OneAttachment', schema
 
     describe 'with a model instance', ->
-      model = null
+      {model} = {}
+
       beforeEach ->
         model = new Model()
 

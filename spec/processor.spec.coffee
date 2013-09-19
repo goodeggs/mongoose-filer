@@ -1,5 +1,5 @@
 require './support/spec_helper'
-attachments = require '..'
+{AttachedFile, Processor} = attachments = require '../src/mongoose-filer'
 
 describe "Processor", ->
   processor = null

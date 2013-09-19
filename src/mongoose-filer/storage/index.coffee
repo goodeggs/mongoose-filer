@@ -10,7 +10,18 @@ exports = module.exports = class Storage
 
   path: (style) ->
     att = @attachedFile
-    path.join '/', att.modelName, att.modelId, att.attributeName, "#{att.id}_#{style}#{att.extension}"
+    paths = ['/']
+
+    addToPaths = (object) ->
+      if object?
+        paths.push object.toString()
+
+    addToPaths att?.modelName
+    addToPaths att?.modelId
+    addToPaths att?.attributeName
+
+    paths.push "#{att.id}_#{style}#{att.extension}"
+    path.join paths...
 
   url: (style) ->
     "#{Storage.baseUrl}#{@path(style)}"
