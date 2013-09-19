@@ -1,5 +1,5 @@
 require './support/spec_helper'
-{AttachedFile} = require '..'
+AttachedFile = require '../src/mongoose-filer/attached_file'
 
 describe "AttachedFile", ->
   attachedFile = null
@@ -16,7 +16,7 @@ describe "AttachedFile", ->
         type: 'image/jpeg'
         path: './spec/does_not_exist.jpg'
 
-  describe "save", (next) ->
+  describe "save", ->
     describe 'with unresolvable file path', ->
       it 'errors', (done) ->
         attachedFile.save (err) ->
